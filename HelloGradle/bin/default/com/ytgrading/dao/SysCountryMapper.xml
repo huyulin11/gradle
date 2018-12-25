@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.SysCountryMapper">
+	<resultMap id="BaseResultMap" type="com.ytgrading.dto.SysCountry">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="code" property="code" jdbcType="VARCHAR" />
+		<result column="hot" property="hot" jdbcType="CHAR" />
+		<result column="fullname" property="fullname" jdbcType="LONGVARCHAR" />
+		<result column="shortname" property="shortname" jdbcType="LONGVARCHAR" />
+	</resultMap>
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value}
+									and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Base_Column_List">
+		id, code, hot, fullname, shortname
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from sys_country
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		sys_country
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="com.ytgrading.dto.SysCountry">
+		insert into sys_country (id,
+		code, hot, fullname, shortname)
+		values (#{id,jdbcType=INTEGER},
+		#{code,jdbcType=VARCHAR},
+		#{hot,jdbcType=CHAR},
+		#{fullname,jdbcType=LONGVARCHAR},
+		#{shortname,jdbcType=LONGVARCHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="com.ytgrading.dto.SysCountry">
+		insert into sys_country
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="code != null">
+				code,
+			</if>
+			<if test="hot != null">
+				hot,
+			</if>
+			<if test="fullname != null">
+				fullname,
+			</if>
+			<if test="shortname != null">
+				shortname,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="code != null">
+				#{code,jdbcType=VARCHAR},
+			</if>
+			<if test="hot != null">
+				#{hot,jdbcType=CHAR},
+			</if>
+			<if test="fullname != null">
+				#{fullname,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="shortname != null">
+				#{shortname,jdbcType=LONGVARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<select id="selectACountry" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		id, code, hot,ExtractValue(fullname,
+		"//value[@lang='zh_CN']")
+		as
+		fullname, shortname
+		from sys_country
+		where
+		id=#{id,jdbcType=INTEGER}
+	</select>
+
+	<select id="getAllCountry" resultMap="BaseResultMap">
+		SELECT
+		id,
+		CONCAT(
+		ExtractValue (
+		fullname,
+		"//value[@lang='zh_CN']"
+		),
+		"(",
+		ExtractValue (
+		fullname,
+		"//value[@lang='en_US']"
+		),
+		")"
+		) fullname
+		FROM
+		sys_country
+	</select>
+</mapper>

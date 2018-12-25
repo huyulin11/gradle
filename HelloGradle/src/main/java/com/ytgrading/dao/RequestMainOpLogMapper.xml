@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.RequestMainOpLogMapper" >
+  <insert id="insert" parameterType="com.ytgrading.dto.RequestMainOpLogBean" >
+    INSERT INTO `request_main_op_log` (
+	  `requestcode`,
+	  `opType`,
+	  `opusertype`,
+	  `opuserid`,
+	  `preuserid`,
+	  `posuserid`,
+	  `prerequestinnstatus`,
+	  `posrequestinnstatus`,
+	  `prerequestoutstatus`,
+	  `posrequestoutstatus`,
+	  `pretotalcost`,
+	  `postotalcost`,
+	  `pretotalamount`,
+	  `postotalamount`,
+	  `remark`,
+	  `createtime`
+	) 
+	VALUES
+	  (
+	    #{requestcode},
+	    #{opType},
+	    #{opusertype},
+	    #{opuserid},
+	    <if test="preuserid=='--'">
+	    	0,
+	    </if>
+	    <if test="preuserid!='--'">
+	    #{preuserid},
+	    </if>
+	    #{posuserid},
+	    #{prerequestinnstatus},
+	    #{posrequestinnstatus},
+	    #{prerequestoutstatus},
+	    #{posrequestoutstatus},
+	    #{pretotalcost},
+	    #{postotalcost},
+	    #{pretotalamount},
+	    #{postotalamount},
+	    #{remark},
+	    now()
+	  )
+  </insert>
+  
+   <select id="select" resultType="com.ytgrading.dto.RequestMainOpLogBean">
+	SELECT 
+	  `id`,
+	  `requestcode`,
+	  `opType`,
+	  `opusertype`,
+	  `opuserid`,
+	  `preuserid`,
+	  `posuserid`,
+	  `prerequestinnstatus`,
+	  `posrequestinnstatus`,
+	  `prerequestoutstatus`,
+	  `posrequestoutstatus`,
+	  `pretotalcost`,
+	  `postotalcost`,
+	  `pretotalamount`,
+	  `postotalamount`,
+	  `remark`,
+	  `createtime` 
+	FROM
+	  `request_main_op_log` 
+   WHERE 1 = 1
+	 AND rl.requestcode = #{requestcode,jdbcType=VARCHAR}
+  </select>
+  
+</mapper>

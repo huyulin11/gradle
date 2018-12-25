@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.WalletJournalMapper">
+	<resultMap id="BaseResultMap" type="com.ytgrading.dto.WalletJournal">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="walletid" property="walletid" jdbcType="VARCHAR" />
+		<result column="type" property="type" jdbcType="CHAR" />
+		<result column="amount" property="amount" jdbcType="DECIMAL" />
+		<result column="unit" property="unit" jdbcType="CHAR" />
+		<result column="reallyamount" property="reallyamount" jdbcType="DECIMAL" />
+		<result column="occurdate" property="occurdate" jdbcType="TIMESTAMP" />
+		<result column="ipsbanktime" property="ipsbanktime" jdbcType="TIMESTAMP" />
+		<result column="currency_type" property="currencyType"
+			jdbcType="VARCHAR" />
+		<result column="bankbillno" property="bankbillno" jdbcType="VARCHAR" />
+		<result column="ipsbillno" property="ipsbillno" jdbcType="VARCHAR" />
+		<result column="billno" property="billno" jdbcType="VARCHAR" />
+		<result column="updateby" property="updateby" jdbcType="VARCHAR" />
+		<result column="userid" property="userid" jdbcType="VARCHAR" />
+		<result column="delflag" property="delflag" jdbcType="CHAR" />
+		<result column="status" property="status" jdbcType="CHAR" />
+	</resultMap>
+	<resultMap id="WalletJournalResultMap" type="com.ytgrading.dto.WalletJournal">
+		<id column="id" jdbcType="VARCHAR" property="id" />
+		<result column="walletid" jdbcType="VARCHAR" property="walletid" />
+		<result column="type" jdbcType="CHAR" property="type" />
+		<result column="amount" jdbcType="DECIMAL" property="amount" />
+		<result column="unit" jdbcType="CHAR" property="unit" />
+		<result column="reallyamount" jdbcType="DECIMAL" property="reallyamount" />
+		<result column="occurdate" jdbcType="TIMESTAMP" property="occurdate" />
+		<result column="ipsbanktime" jdbcType="TIMESTAMP" property="ipsbanktime" />
+		<result column="currency_type" jdbcType="VARCHAR" property="currencyType" />
+		<result column="bankbillno" jdbcType="VARCHAR" property="bankbillno" />
+		<result column="ipsbillno" jdbcType="VARCHAR" property="ipsbillno" />
+		<result column="billno" jdbcType="VARCHAR" property="billno" />
+		<result column="updateby" jdbcType="VARCHAR" property="updateby" />
+		<result column="userid" jdbcType="VARCHAR" property="userid" />
+		<result column="delflag" jdbcType="CHAR" property="delflag" />
+	</resultMap>
+	<sql id="WalletJournal_Column_List">
+		id, walletid, type, amount, unit, reallyamount, occurdate,
+		ipsbanktime, currency_type,
+		bankbillno, ipsbillno, billno, updateby,
+		userid, delflag
+	</sql>
+	<insert id="insertWalletJournal" parameterType="com.ytgrading.dto.WalletJournal">
+		insert into wallet_journal
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="walletid != null">
+				walletid,
+			</if>
+			<if test="type != null">
+				type,
+			</if>
+			<if test="amount != null">
+				amount,
+			</if>
+			<if test="unit != null">
+				unit,
+			</if>
+			<if test="reallyamount != null">
+				reallyamount,
+			</if>
+			<if test="occurdate != null">
+				occurdate,
+			</if>
+			<if test="ipsbanktime != null">
+				ipsbanktime,
+			</if>
+			<if test="currencyType != null">
+				currency_type,
+			</if>
+			<if test="bankbillno != null">
+				bankbillno,
+			</if>
+			<if test="ipsbillno != null">
+				ipsbillno,
+			</if>
+			<if test="billno != null">
+				billno,
+			</if>
+			<if test="updateby != null">
+				updateby,
+			</if>
+			<if test="userid != null">
+				userid,
+			</if>
+			<if test="delflag != null">
+				delflag,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="fundFlowStatus != null">
+				fund_flow_status,
+			</if>
+			<if test="paymentMethod != null">
+				payment_method,
+			</if>
+			<if test="bankcarCode != null">
+				bankcar_code,
+			</if>
+			<if test="voucherNO != null">
+				voucher_no,
+			</if>
+			<if test="tradeRemark != null">
+				trade_remark,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="walletid != null">
+				#{walletid,jdbcType=VARCHAR},
+			</if>
+			<if test="type != null">
+				#{type,jdbcType=CHAR},
+			</if>
+			<if test="amount != null">
+				#{amount,jdbcType=DECIMAL},
+			</if>
+			<if test="unit != null">
+				#{unit,jdbcType=CHAR},
+			</if>
+			<if test="reallyamount != null">
+				#{reallyamount,jdbcType=DECIMAL},
+			</if>
+			<if test="occurdate != null">
+				#{occurdate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="ipsbanktime != null">
+				#{ipsbanktime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="currencyType != null">
+				#{currencyType,jdbcType=VARCHAR},
+			</if>
+			<if test="bankbillno != null">
+				#{bankbillno,jdbcType=VARCHAR},
+			</if>
+			<if test="ipsbillno != null">
+				#{ipsbillno,jdbcType=VARCHAR},
+			</if>
+			<if test="billno != null">
+				#{billno,jdbcType=VARCHAR},
+			</if>
+			<if test="updateby != null">
+				#{updateby,jdbcType=VARCHAR},
+			</if>
+			<if test="userid != null">
+				#{userid,jdbcType=VARCHAR},
+			</if>
+			<if test="delflag != null">
+				#{delflag,jdbcType=CHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=CHAR},
+			</if>
+			<if test="fundFlowStatus != null">
+				#{fundFlowStatus,jdbcType=CHAR},
+			</if>
+			<if test="paymentMethod != null">
+				#{paymentMethod,jdbcType=VARCHAR},
+			</if>
+			<if test="bankcarCode != null">
+				#{bankcarCode,jdbcType=VARCHAR},
+			</if>
+			<if test="voucherNO != null">
+				#{voucherNO,jdbcType=VARCHAR},
+			</if>
+			<if test="tradeRemark != null">
+				#{tradeRemark,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<select id="getWalletJournal" resultType="com.ytgrading.dto.WalletJournal">
+		SELECT
+			wj.id,
+			wj.type,
+			(
+				CASE sb.sys_blong_thirdparty
+				WHEN '5' THEN
+					CONCAT(
+						(
+							CASE sb.addtowallet
+							WHEN '1' THEN
+								''
+							ELSE
+								'-'
+							END
+						), wj.amount)
+				ELSE
+					wj.amount
+				END
+			) AS amount,
+			wj.occurdate AS operateTime,
+			wj.bankbillno,
+			wj.ipsbillno,
+			wj.billno,
+			(
+				CASE
+				WHEN em.`name` IS NOT NULL THEN
+					em.`name`
+				WHEN u2.`name` IS NOT NULL THEN
+					u2.`name`
+				ELSE
+					(
+						SELECT
+							NULL
+						FROM
+							`user`
+						WHERE
+							id = wj.userid
+					)
+				END
+			) AS updatebyName,
+			(
+				CASE sb.sys_blong_thirdparty
+				WHEN '1' THEN
+					CONCAT(
+						'入-支付宝-',
+						sb.sys_cn_name
+					)
+				WHEN '2' THEN
+					CONCAT(
+						'入-财付通-',
+						sb.sys_cn_name
+					)
+				WHEN '5' THEN
+					CONCAT(
+						(
+							CASE sb.addtowallet
+							WHEN '1' THEN
+								'入-'
+							ELSE
+								'出-'
+							END
+						),
+						sb.sys_cn_name
+					)
+				ELSE
+					CONCAT('入-', sb.sys_cn_name)
+				END
+			) AS paymentMethod,
+			u.`name` AS username,
+			u.usercode userYTid,
+			wj.fund_flow_status AS fundFlowStatus,
+			wj.bankcar_code AS bankcarCode,
+			wj.voucher_no AS voucherNO,
+			IFNULL(
+				wj.trade_remark,
+				CONCAT(py.requestcode, ',')
+			) AS tradeRemark
+		FROM
+			wallet_journal wj
+		LEFT JOIN `user` u2 ON u2.id = wj.updateby
+		LEFT JOIN employee em ON em.id = wj.updateby
+		LEFT JOIN pay_journal py ON py.billno = wj.billno
+		LEFT JOIN sys_bank sb ON sb.sys__anonymity = wj.payment_method,
+		 `user` u
+		WHERE
+			1 = 1
+		AND u.id = wj.userid
+		<if test="userid != null and userid != ''">
+			AND wj.userid=#{userid,jdbcType=VARCHAR}
+		</if>
+		<if test="(userName != null and userName != '')||(userMoblie != null and userMoblie != '')||(userEmail != null and userEmail != '')||(userCode != null and userCode != '')">
+			AND EXISTS (
+				SELECT
+					1
+				FROM
+					`user`
+				WHERE
+					id = wj.userid
+				<if test="userMoblie != null and userMoblie != ''">
+					AND defaultmobile=#{userMoblie,jdbcType=VARCHAR}
+				</if>
+				<if test="userEmail != null and userEmail != ''">
+					AND defaultmail=#{userEmail,jdbcType=VARCHAR}
+				</if>
+				<if test="userName != null and userName != ''">
+					AND `name` = #{userName,jdbcType=VARCHAR}
+				</if>
+				<if test="userCode != null and userCode != ''">
+					AND usercode=#{userCode,jdbcType=VARCHAR}
+				</if>
+			)
+		</if>
+		<if test="queryStartTime != null and queryStartTime != ''">
+			AND date_format(wj.occurdate, '%Y-%m-%d')>=#{queryStartTime,jdbcType=VARCHAR}
+		</if>
+		<if test="queryEndTime != null and queryEndTime != ''">
+			AND date_format(wj.occurdate, '%Y-%m-%d')&lt;=#{queryEndTime,jdbcType=VARCHAR}
+		</if>
+		ORDER BY wj.occurdate DESC,sb.sys_blong_thirdparty DESC
+		limit #{startRow},#{pageSize}
+	</select>
+	<select id="selectWalletJournal" parameterType="java.lang.String"
+		resultType="com.ytgrading.bean.rechargerecord">
+		select wj.billno,u.`name`,wj.occurdate,wj.amount,wj.`status`
+		from
+		wallet_journal wj LEFT JOIN user u ON wj.userid=u.id
+		WHERE wj.type='0'
+		<if test="userid != null and userid != ''">
+			and wj.userid =#{userid,jdbcType=VARCHAR}
+		</if>
+	</select>
+	<select id="checkWallet_journal" resultMap="WalletJournalResultMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="WalletJournal_Column_List" />
+		from wallet_journal
+		where status='0' AND billno =
+		#{id,jdbcType=VARCHAR}
+	</select>
+	<select id="checkPayMent" parameterType="java.lang.String"
+		resultType="com.ytgrading.bean.Pay_Wallet">
+		select
+		*
+		from
+		wallet_journal a
+		join
+		pay_journal b
+		on
+		a.billno=b.billno
+		where payid = #{id,jdbcType=VARCHAR}
+	</select>
+	<select id="selectWallet_journal" resultMap="WalletJournalResultMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="WalletJournal_Column_List" />
+		from wallet_journal
+		where billno = #{id,jdbcType=VARCHAR}
+		AND
+		userid =
+		#{userid,jdbcType=VARCHAR}
+	</select>
+	<update id="updateWallet_journal" parameterType="map">
+		update
+		wallet_journal
+		set
+		userid =#{userid,jdbcType=VARCHAR},
+		delflag='1'
+		where
+		billno = #{id,jdbcType=VARCHAR}
+	</update>
+</mapper>

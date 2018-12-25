@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.TheThirdOneMapper">
+	<select id="checkEnterpriseUser" resultType="java.lang.Integer"
+		parameterType="java.lang.String">
+		SELECT count(1) FROM sys_enterprise_users_info
+		WHERE
+		username =
+		#{username,jdbcType=VARCHAR}
+		and password =
+		#{password,jdbcType=VARCHAR}
+	</select>
+	<select id="getRequestCoinByCoincode" resultType="com.ytgrading.bean.RequestCoinBean"
+		parameterType="java.lang.String">
+		select *
+		from request_coin
+		where coincode =
+		#{coincode,jdbcType=VARCHAR}
+	</select>
+	<select id="getReqCoinScoreByCoincode" resultType="com.ytgrading.dto.RequestCoinScore"
+		parameterType="java.lang.String">
+		select * from
+		request_coin_score rcs where
+		rcs.requestcoinid=(select rc.id
+		from
+		request_coin rc
+		where rc.coincode
+		=#{coincode,jdbcType=VARCHAR})
+		and
+		rcs.level='2'
+		order by rcs.level
+	</select>
+	<select id="getRequestByrequestcode" resultType="com.ytgrading.dto.Request"
+		parameterType="java.lang.String">
+		select *
+		from request_main
+		where requestcode =
+		#{requestcode,jdbcType=VARCHAR}
+		or id =
+		#{requestcode,jdbcType=VARCHAR}
+	</select>
+	<select id="getCoinInfoBycoinId" resultType="com.ytgrading.dto.CoinN"
+		parameterType="java.lang.Integer">
+		select *
+		from coin
+		where id =
+		#{id,jdbcType=INTEGER}
+	</select>
+</mapper>

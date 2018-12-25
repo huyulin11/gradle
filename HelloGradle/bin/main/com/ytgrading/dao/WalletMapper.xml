@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.WalletMapper" >
+	<resultMap id="BaseResultMap" type="com.ytgrading.dto.Wallet" >
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="userid" property="userid" jdbcType="VARCHAR" />
+		<result column="balance" property="balance" jdbcType="DECIMAL" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="CHAR" />
+		<result column="activatedate" property="activatedate" jdbcType="TIMESTAMP" />
+		<result column="delflag" property="delflag" jdbcType="CHAR" />
+	</resultMap>
+	<resultMap id="WalletMap" type="com.ytgrading.dto.Wallet">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="userid" property="userid" jdbcType="VARCHAR" />
+		<result column="balance" property="balance" jdbcType="DECIMAL" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="CHAR" />
+		<result column="activatedate" property="activatedate" jdbcType="TIMESTAMP" />
+		<result column="delflag" property="delflag" jdbcType="CHAR" />
+	</resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, userid, balance, password, status, activatedate, delflag
+  </sql>
+  
+  <insert id="insert" parameterType="com.ytgrading.dto.Wallet" >
+    insert into wallet_money (id, userid, balance, 
+      password, status, activatedate, 
+      delflag)
+    values (#{id,jdbcType=VARCHAR}, #{userid,jdbcType=VARCHAR}, #{balance,jdbcType=DECIMAL}, 
+      #{password,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{activatedate,jdbcType=TIMESTAMP}, 
+      #{delflag,jdbcType=CHAR})
+  </insert>
+  
+  <select id="getWallet"  resultType="java.lang.String" parameterType="java.lang.String" >
+   		SELECT `status` FROM wallet_money WHERE userid = #{userid,jdbcType=VARCHAR} AND delflag = "0"
+  </select>
+  <select id="getBalance"  resultType="java.math.BigDecimal" parameterType="java.lang.String" >
+   		SELECT balance FROM wallet_money WHERE userid = #{userid,jdbcType=VARCHAR}
+  </select>
+  
+	<update id="updatePaypassword" parameterType="com.ytgrading.dto.Wallet">
+		update wallet_money
+		<set>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where userid = #{userid,jdbcType=VARCHAR}
+	</update>
+	<select id="seleceWallet" resultMap="WalletMap" parameterType="java.lang.String">
+		select id, userid, balance, password, status, activatedate, delflag
+		from wallet_money
+		where userid = #{userid,jdbcType=VARCHAR}
+	</select>
+	
+	<!--支付钱包操作-->
+	<update id="walletMoneyPlus" parameterType="map">
+		update wallet_money 
+		   set balance=balance+#{amount,jdbcType=DECIMAL} 
+		 where userid=#{userid,jdbcType=VARCHAR}
+	</update>
+	
+	<update id="walletMoneyMinus" parameterType="map">
+		update wallet_money 
+		   set balance=balance-#{amount,jdbcType=DECIMAL} 
+		 where userid=#{userid,jdbcType=VARCHAR}
+	</update>
+	
+	<update id="updatePay" parameterType="com.ytgrading.dto.Wallet">
+		update wallet_money
+		<set>
+			<if test="balance != null">
+				balance = #{balance,jdbcType=DECIMAL},
+			</if>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=CHAR},
+			</if>
+			<if test="activatedate != null">
+				activatedate = #{activatedate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="delflag != null">
+				delflag = #{delflag,jdbcType=CHAR},
+			</if>
+		</set>
+		where userid = #{userid,jdbcType=VARCHAR}
+	</update>
+	<!--支付钱包操作-->
+	
+	<update id="updatreDeflag" parameterType="map">
+		update wallet_money
+		   set delflag=#{delflag,jdbcType=VARCHAR} 
+		 where userid=#{userid,jdbcType=VARCHAR}
+	</update>
+	
+	<select id="addTransForWallet" resultType="com.ytgrading.dto.Wallet"
+		parameterType="java.lang.String">
+		select * from wallet_money
+		where userid =
+		#{userid,jdbcType=VARCHAR}
+		for update
+	</select>
+
+    <select id="selectByUserid" resultType="com.ytgrading.dto.Wallet" parameterType="java.lang.String">
+		select * from wallet_money
+		where userid = #{userid,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="getMyWallet" resultType="com.ytgrading.dto.Wallet" parameterType="java.lang.String" >
+    SELECT * FROM wallet_money 
+    WHERE delflag = '0' 
+    AND userid = #{userId,jdbcType=VARCHAR}
+  </select>
+    <select id="tolockWallet" resultType="java.lang.String" parameterType="java.lang.String" >
+    select id from wallet_money 
+    where userid = #{userId,jdbcType=VARCHAR} 
+    for update
+  </select>
+  <insert id="insertWallet" parameterType="com.ytgrading.dto.Wallet">
+      insert into wallet_money
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userid != null" >
+        userid,
+      </if>
+      <if test="balance != null" >
+        balance,
+      </if>
+      <if test="password != null" >
+        password,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="activatedate != null" >
+        activatedate,
+      </if>
+      <if test="delflag != null" >
+        delflag,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="userid != null" >
+        #{userid,jdbcType=VARCHAR},
+      </if>
+      <if test="balance != null" >
+        #{balance,jdbcType=DECIMAL},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="activatedate != null" >
+        #{activatedate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="delflag != null" >
+        #{delflag,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="activateWallet" parameterType="com.ytgrading.dto.Wallet">
+      update wallet_money
+    	set status =#{status,jdbcType=CHAR},
+    		password =#{password,jdbcType=VARCHAR},
+    		activatedate =#{activatedate,jdbcType=TIMESTAMP}
+    	where userid =#{userid,jdbcType=VARCHAR}
+      
+  </update>
+  
+</mapper>

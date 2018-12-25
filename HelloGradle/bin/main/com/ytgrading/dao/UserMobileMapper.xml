@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace='com.ytgrading.dao.UserMobileMapper'>
+
+  <select id='getUserMobileList' parameterType='string' resultType='map'>
+    SELECT *
+	FROM user_mobile
+	WHERE userid = #{userid,jdbcType=VARCHAR} AND delflag = '0'
+  </select>
+  <select id='getMobileDetail' parameterType='string' resultType='map'>
+    SELECT *
+	FROM user_mobile
+	WHERE userid = #{userid,jdbcType=VARCHAR}
+		AND telephone = #{numble,jdbcType=VARCHAR} 
+  </select>
+  <update id="editMobile" parameterType='string' >
+  	UPDATE user_mobile
+  	SET telephone=#{numble,jdbcType=VARCHAR}
+  	WHERE id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  <select id='getDefaultMobile' parameterType='string' resultType='String'>
+  	SELECT telephone
+	FROM user_mobile
+	WHERE userid = #{userid,jdbcType=VARCHAR} 
+		AND isdefault = '1'
+  </select>
+  
+  <update id="setMobileDefault"  parameterType='string'>
+  	UPDATE user_mobile
+	SET isdefault = !isdefault
+	WHERE userid = #{userid,jdbcType=VARCHAR} AND ( 
+		telephone = #{numble,jdbcType=VARCHAR} XOR isdefault = '1' )
+  </update>
+  
+  <select id='checkValidMobile' parameterType='string' resultType='boolean'>
+  	SELECT status = '1'
+	FROM user_mobile
+	WHERE userid = #{userid,jdbcType=VARCHAR} 
+		AND telephone = #{numble,jdbcType=VARCHAR} 
+  </select>
+  
+  <select id='getValidMobile' parameterType='string' resultType='String'>
+  	SELECT telephone
+	FROM user_mobile
+	WHERE userid = #{userid,jdbcType=VARCHAR} 
+		AND status = '1'
+  </select>
+  
+  <update id="setMobileValid"  parameterType='string'>
+  	UPDATE user_mobile
+	SET STATUS = '1'
+	WHERE userid = #{userid,jdbcType=VARCHAR} 
+		AND telephone = #{numble,jdbcType=VARCHAR}
+  	
+  </update>
+  	
+  <update id="setMobileInvalid"  parameterType='string'>
+  	UPDATE user_mobile
+	SET STATUS = '0'
+	WHERE userid = #{userid,jdbcType=VARCHAR}
+		AND telephone = #{numble,jdbcType=VARCHAR}
+  </update>
+  
+  <insert id="addMobile" parameterType='string'>
+    INSERT user_mobile(id,userid,telephone,isdefault,
+    	status,delflag,remark,isremove)
+	VALUE(UUID(),#{userid,jdbcType=VARCHAR},
+		#{numble,jdbcType=VARCHAR},0,0,0,NULL,0);
+  </insert>
+
+  
+  
+    
+</mapper>

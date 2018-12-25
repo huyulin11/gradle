@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.ReservationMapper">
+	<resultMap id="BaseResultMap" type="com.ytgrading.dto.Reservation">
+		<id column="Id" property="id" jdbcType="INTEGER" />
+		<result column="tickettype" property="tickettype" jdbcType="CHAR" />
+		<result column="rescode" property="rescode" jdbcType="VARCHAR" />
+		<result column="restime" property="restime" jdbcType="TIMESTAMP" />
+		<result column="ticketstatus" property="ticketstatus" jdbcType="CHAR" />
+		<result column="resname" property="resname" jdbcType="VARCHAR" />
+		<result column="userid" property="userid" jdbcType="VARCHAR" />
+		<result column="resnum" property="resnum" jdbcType="INTEGER" />
+		<result column="rescontext" property="rescontext" jdbcType="VARCHAR" />
+		<result column="sendtype" property="sendtype" jdbcType="CHAR" />
+	</resultMap>
+	<resultMap id="ReservationTypeMap" type="com.ytgrading.dto.ReservationType">
+		<id column="reservationtypeid" property="reservationtypeid"
+			jdbcType="VARCHAR" />
+		<result column="reservationtypename" property="reservationtypename"
+			jdbcType="VARCHAR" />
+		<result column="reservationtypeinfo" property="reservationtypeinfo"
+			jdbcType="VARCHAR" />
+		<result column="starttime" property="starttime" jdbcType="VARCHAR" />
+		<result column="endtime" property="endtime" jdbcType="VARCHAR" />
+		<result column="entitytype" property="entitytype" jdbcType="VARCHAR" />
+		<result column="reservfeetype" property="reservfeetype"
+			jdbcType="VARCHAR" />
+		<result column="reservsubtype" property="reservsubtype"
+			jdbcType="VARCHAR" />
+		<result column="needcoupon" property="needcoupon" jdbcType="INTEGER" />
+		<result column="usetimes" property="usetimes" jdbcType="INTEGER" />
+		<result column="delflag" property="delflag" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap id="ReservationRecordMap" type="com.ytgrading.dto.ReservationRecord">
+		<id column="reservationrecordid" property="reservationrecordid"
+			jdbcType="VARCHAR" />
+		<result column="reservationtypeid" property="reservationtypeid"
+			jdbcType="VARCHAR" />
+		<result column="requestcode" property="requestcode" jdbcType="VARCHAR" />
+		<result column="userid" property="userid" jdbcType="VARCHAR" />
+		<result column="couponid" property="couponid" jdbcType="VARCHAR" />
+		<result column="delflag" property="delflag" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		Id, tickettype, rescode, restime, ticketstatus, resname,
+		userid, resnum,
+		rescontext,
+		sendtype
+	</sql>
+	<sql id="Reservation_Type_List">
+		reservationtypeid,
+		reservationtypename,
+		reservationtypeinfo,
+		starttime,
+		endtime,
+		entitytype,
+		reservfeetype,
+		reservsubtype,
+		needcoupon,
+		usetimes,
+		requestusetimes,
+		delflag,
+		ordercol
+	</sql>
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from reservation
+		where Id = #{id,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		reservation
+		where Id = #{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="com.ytgrading.dto.Reservation">
+		insert into reservation (Id,
+		tickettype, rescode,
+		restime, ticketstatus, resname,
+		userid, resnum,
+		rescontext,
+		sendtype)
+		values (#{id,jdbcType=INTEGER},
+		#{tickettype,jdbcType=CHAR},
+		#{rescode,jdbcType=VARCHAR},
+		#{restime,jdbcType=TIMESTAMP}, #{ticketstatus,jdbcType=CHAR},
+		#{resname,jdbcType=VARCHAR},
+		#{userid,jdbcType=VARCHAR},
+		#{resnum,jdbcType=INTEGER},
+		#{rescontext,jdbcType=VARCHAR},
+		#{sendtype,jdbcType=CHAR})
+	</insert>
+
+	<delete id="deleteReservationRecordByRequestcode" parameterType="java.lang.Integer">
+		delete from
+		reservation_record
+		WHERE
+		requestcode = #{requestcode,jdbcType=INTEGER}
+		AND
+		delflag = '0'
+	</delete>
+
+	<select id="selectReservationRecordByRequestcode" resultType="com.ytgrading.dto.ReservationRecord"
+		parameterType="java.lang.Integer">
+		SELECT
+		reservationtypeid,
+		GROUP_CONCAT(couponid) couponid
+		FROM
+		reservation_record
+		WHERE
+		requestcode = #{requestcode,jdbcType=INTEGER}
+		AND
+		delflag = '0'
+		GROUP BY
+		reservationtypeid
+		LIMIT 0,1
+	</select>
+
+	<insert id="insertReservationRecord" parameterType="com.ytgrading.dto.ReservationRecord">
+		insert into reservation_record
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="reservationrecordid != null">
+				reservationrecordid,
+			</if>
+			<if test="reservationtypeid != null">
+				reservationtypeid,
+			</if>
+			<if test="requestcode != null">
+				requestcode,
+			</if>
+			userid,
+			<if test="couponid != null">
+				couponid,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="reservationrecordid != null">
+				#{reservationrecordid,jdbcType=INTEGER},
+			</if>
+			<if test="reservationtypeid != null">
+				#{reservationtypeid,jdbcType=CHAR},
+			</if>
+			<if test="requestcode != null">
+				#{requestcode,jdbcType=VARCHAR},
+			</if>
+			<if test="requestcode != null">
+				(SELECT userid FROM request_main where
+				requestcode=#{requestcode,jdbcType=VARCHAR}),
+			</if>
+			<if test="couponid != null">
+				#{couponid,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+
+	<update id="updateByPrimaryKeySelective" parameterType="com.ytgrading.dto.Reservation">
+		update reservation
+		<set>
+			<if test="tickettype != null">
+				tickettype = #{tickettype,jdbcType=CHAR},
+			</if>
+			<if test="rescode != null">
+				rescode = #{rescode,jdbcType=VARCHAR},
+			</if>
+			<if test="restime != null">
+				restime = #{restime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="ticketstatus != null">
+				ticketstatus = #{ticketstatus,jdbcType=CHAR},
+			</if>
+			<if test="resname != null">
+				resname = #{resname,jdbcType=VARCHAR},
+			</if>
+			<if test="userid != null">
+				userid = #{userid,jdbcType=VARCHAR},
+			</if>
+			<if test="resnum != null">
+				resnum = #{resnum,jdbcType=INTEGER},
+			</if>
+			<if test="rescontext != null">
+				rescontext = #{rescontext,jdbcType=VARCHAR},
+			</if>
+			<if test="sendtype != null">
+				sendtype = #{sendtype,jdbcType=CHAR},
+			</if>
+		</set>
+		where Id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.ytgrading.dto.Reservation">
+		update reservation
+		set tickettype = #{tickettype,jdbcType=CHAR},
+		rescode =
+		#{rescode,jdbcType=VARCHAR},
+		restime =
+		#{restime,jdbcType=TIMESTAMP},
+		ticketstatus =
+		#{ticketstatus,jdbcType=CHAR},
+		resname =
+		#{resname,jdbcType=VARCHAR},
+		userid = #{userid,jdbcType=VARCHAR},
+		resnum =
+		#{resnum,jdbcType=INTEGER},
+		rescontext =
+		#{rescontext,jdbcType=VARCHAR},
+		sendtype = #{sendtype,jdbcType=CHAR}
+		where Id = #{id,jdbcType=INTEGER}
+	</update>
+	<select id="getReservationByUserid" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="Base_Column_List" />
+		from reservation
+		where userid = #{userid,jdbcType=VARCHAR}
+		and
+		ticketstatus='1'
+	</select>
+	<select id="getReservationTypeByUserid" resultMap="ReservationTypeMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="Reservation_Type_List" />
+		, (
+		SELECT
+		count(1)
+		FROM
+		reservation_record rr
+		WHERE
+		rr.reservationtypeid =
+		rt.reservationtypeid
+		AND rr.userid = #{userid,jdbcType=VARCHAR}
+		AND EXISTS (
+			SELECT
+				1
+			FROM
+				request_main r
+			WHERE
+				r.requestcode = rr.requestcode
+			AND r.internalstates != 0
+		)
+		)
+		usedtimes
+		from
+		reservation_type rt
+		where 1=1
+		AND (entitytype = #{entitytype,jdbcType=VARCHAR} OR entitytype = 0)
+		<if test="opType == 'VIEW'">
+			and rt.reservationtypeid in (
+			SELECT
+			reservationtypeid
+			FROM
+			reservation_record rr
+			WHERE
+			rr.requestcode =
+			#{requestcode,jdbcType=VARCHAR}
+			AND rr.delflag = '0'
+			)
+		</if>
+		<if test="opType == 'ADD' || opType == 'EDIT'">
+			and delflag='0'
+			AND DATE_FORMAT(NOW(), '%Y%m%d') BETWEEN
+			DATE_FORMAT(starttime, '%Y%m%d')
+			AND DATE_FORMAT(endtime, '%Y%m%d')
+		</if>
+		<if test="opType == 'HEAR'">
+			AND (
+			(
+			DATE_FORMAT(
+			(
+			SELECT
+			requesttime
+			FROM
+			request_main
+			WHERE
+			requestcode = #{requestcode,jdbcType=VARCHAR}
+			),
+			'%Y%m%d'
+			) BETWEEN
+			DATE_FORMAT(starttime, '%Y%m%d')
+			AND DATE_FORMAT(endtime, '%Y%m%d')
+			)
+			OR (
+			DATE_FORMAT(NOW(), '%Y%m%d') BETWEEN DATE_FORMAT(starttime,
+			'%Y%m%d')
+			AND DATE_FORMAT(endtime, '%Y%m%d')
+			)
+			)
+		</if>
+	</select>
+	
+	<select id="checkCouponIsExist" resultType="java.lang.Integer"
+		parameterType="java.lang.String">
+		SELECT
+			count(*)
+		FROM
+			reservation_coupon_dic
+		WHERE
+			1 = 1
+		AND delflag = '0'
+		AND reservationtypeid = #{reservationtypeid,jdbcType=VARCHAR}
+		AND couponid = #{couponid,jdbcType=CHAR}
+	</select>
+	
+	<select id="checkCouponHasUesd" resultType="java.lang.Integer"
+		parameterType="java.lang.String">
+		SELECT
+			count(1)
+		FROM
+			reservation_record rr
+		WHERE
+			reservationtypeid = #{reservationtypeid,jdbcType=VARCHAR}
+		AND instr(couponid, #{couponid,jdbcType=CHAR}) > 0
+		AND EXISTS (
+			SELECT
+				1
+			FROM
+				request_main r
+			WHERE
+				r.requestcode = rr.requestcode
+			AND r.internalstates != 0
+			AND requestcode != #{requestcode,jdbcType=INTEGER}
+		)
+	</select>
+	
+	<select id="getReservationTypeUesdTimes" resultType="java.lang.Integer"
+		parameterType="java.lang.String">
+		SELECT
+			count(1)
+		FROM
+			reservation_record rr
+		WHERE
+			1 = 1
+		AND delflag = '0'
+		<if test="userid != null">
+			AND userid = #{userid,jdbcType=VARCHAR}
+		</if>
+		<if test="reservationtypeid != null">
+			AND reservationtypeid = #{reservationtypeid,jdbcType=VARCHAR}
+		</if>
+		<if test="requestcode != null">
+			AND EXISTS (
+				SELECT
+					1
+				FROM
+					request_main r
+				WHERE
+					r.requestcode = rr.requestcode
+				AND r.internalstates != 0
+				AND requestcode != #{requestcode,jdbcType=INTEGER}
+			)
+			AND requestcode = #{requestcode,jdbcType=INTEGER}
+		</if>
+		<if test="couponid != null">
+			AND couponid = #{couponid,jdbcType=VARCHAR}
+		</if>
+		<if test="couponid == null">
+			AND (couponid is null or couponid = "")
+			AND EXISTS (
+				SELECT
+					1
+				FROM
+					reservation_type rt
+				WHERE
+					rt.reservationtypeid = rr.reservationtypeid
+				AND rt.needcoupon != 1
+			)
+		</if>
+	</select>
+</mapper>

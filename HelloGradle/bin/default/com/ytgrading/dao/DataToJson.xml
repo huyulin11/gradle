@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.DataToJson">
+	<select id="SearchImagesData" resultType="com.ytgrading.bean.IndexImagesBean">
+		select path,url,imagestype
+		from index_images
+		where usable=0 and delflag=0
+	</select>
+</mapper>

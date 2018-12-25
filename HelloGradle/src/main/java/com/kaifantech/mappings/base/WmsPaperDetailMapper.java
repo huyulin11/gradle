@@ -1,0 +1,18 @@
+package com.kaifantech.mappings.base;
+
+import java.util.List;
+
+import com.kaifantech.bean.wms.paper.base.WmsPaperDetailBean;
+import com.kaifantech.bean.wms.paper.base.WmsPaperMainBean;
+import com.ytgrading.util.FormMap;
+
+public interface WmsPaperDetailMapper<TD extends WmsPaperDetailBean, TM extends WmsPaperMainBean<TD>, TF extends FormMap<String, Object>>
+		extends BaseMapper<FormMap<String, Object>> {
+
+	public List<TF> findPage(TF formMap);
+
+	public int add(TF billFormMap);
+
+	public List<TD> find(TD bean);
+
+}

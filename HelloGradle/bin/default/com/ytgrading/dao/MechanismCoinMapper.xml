@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.MechanismCoinMapper">
+<select id="selectMechanismCoinDetail" resultType="com.ytgrading.bean.Review" parameterType="java.lang.String">
+		SELECT  
+		  rd.coinid,
+		  rd.amount,
+		  years,
+		  rd.evaluate guestappraisal,
+		  sacbi.evaluate,
+		  rd.score,
+		  rd.remark,
+		  rd.numindex,
+		  rd.totalreqcost,
+		  rd.totalevaluate,
+		  rd.amountofissue,
+		  rd.guestappraisal,
+		  rd.wmk,
+		  rd.whetherSample,
+		  rd.blockNum,
+		  rd.guestWRSize as size,
+		  rd.guestWRWeight as zhongliang,
+		  sacbi.fullsubject,
+		  sacbi.shortsubject,
+		  sacbi.facevaluedis,
+			rd.guestWRGrade as gradename,
+		    (SELECT money FROM sys_box_basic_info box
+			WHERE boxid=box.id) as boxCost,
+		  material,
+		  (SELECT
+			ExtractValue (
+				m.fullname,
+				"//value[@lang='zh_CN']"
+			)
+		FROM
+			sys_coin_material m
+		WHERE
+			m.id = material) caizhi,
+		  ExtractValue(st.fullname, "//value[@lang='zh_CN']") guojia,
+		  rd.version 
+		FROM
+		  request_detail rd,
+		  sys_mechanism_coin_basic_info sacbi,
+		  sys_country st 
+		WHERE rd.coinid = sacbi.id 
+		  AND sacbi.country = st.id 
+		  AND rd.requestid = #{id,jdbcType=VARCHAR}
+		ORDER BY rd.numindex 
+	</select>
+	
+	<select id="getMechanismCoinData" parameterType="com.ytgrading.bean.Entityview" resultType="com.ytgrading.bean.SysMechanismCoinBasicInfo">
+		SELECT 
+		  sacbi.id,
+		  catalogue,
+		  country,
+		  years,
+		  ExtractValue (
+		    c.fullname,
+		    "//value[@lang='zh_CN']"
+		  ) guojia,
+		  fullsubject,
+		  shortsubject,
+		  commonlysubject,
+		  facevaluedis,
+		  material,
+		  (SELECT
+				ExtractValue (
+					m.fullname,
+					"//value[@lang='zh_CN']"
+				)
+			FROM
+				sys_coin_material m
+			WHERE
+				m.id = material) caizhi,
+			(SELECT money FROM sys_box_basic_info box
+			WHERE boxid=box.id) as boxCost,
+		  weight,
+		  size,
+		  version,
+		  evaluate,
+		  remarks,
+		  CONCAT_WS(
+		    c.shortname,
+		    fullsubject,
+		    shortsubject,
+		    commonlysubject,
+		    shortsubject,
+		    facevaluedis,
+		    VERSION
+		  ) 
+		FROM
+		  sys_mechanism_coin_basic_info sacbi,
+		  sys_country c 
+		WHERE c.id = sacbi.country 
+		<if test="country != null and country != ''" >
+			and sacbi.country =#{country}
+      	</if>
+		<if test="years != null and years != ''" >
+			and sacbi.years like  CONCAT("%",#{years},"%")
+      	</if>
+      	<if test="facevaluedis != null and facevaluedis != ''" >
+			and sacbi.facevaluedis  like  CONCAT("%",#{facevaluedis},"%")
+      	</if>
+      	<if test="material != null and material != ''" >
+			and sacbi.material =#{material}
+      	</if>
+      	<if test="version != null and version != ''" >
+			and sacbi.version  like  CONCAT("%",#{version},"%")
+      	</if>
+      	<if test="size != null and size != ''" >
+			and sacbi.size  like  CONCAT("%",#{size},"%")
+      	</if>
+      	<if test="fullname != null and fullname != ''">
+      		<foreach item="item" index="index" collection="fullname">
+			and	CONCAT_WS(
+				c.shortname,
+				fullsubject,
+				shortsubject,
+				commonlysubject,
+				shortsubject,
+				facevaluedis,
+				version
+			) like  CONCAT("%",#{item},"%")
+      		</foreach>
+      	</if>
+		limit #{startRow},15
+</select>	
+  	  <select id="getMechanismCoinInfoByCode" resultType="com.ytgrading.bean.CoinInfo">
+		 SELECT rc.id, rc.coincode,sc.shortname as guojia,smcbi.years,smcbi.fullsubject,smcbi.facevaluedis,scm.shortname as caizhi,
+		rc.weight as zhongliang,rc.customSize as size,rc.difversion as version,rc.remark as coinremark,rc.guestWRGrade as grade,
+		(CASE WHEN r.serviceid = 1 THEN '新评' WHEN r.serviceid = 2 THEN '重评' WHEN r.serviceid = 5 THEN
+		'真品鉴定' END ) serviceid,rd.requestid,rcs.level,rc.score,rc.ratingreasondis
+		from request_coin rc  left join request_coin_score rcs on rcs.requestcoinid=rc.id, request_detail rd,
+   		sys_mechanism_coin_basic_info smcbi left join sys_coin_material scm on scm.id=smcbi.material,
+		sys_country sc,request_main r
+		where rd.id=rc.requestdetailid
+		AND smcbi.country=sc.id
+		AND rd.coinid=smcbi.id
+		AND r.id=rd.requestid
+		AND rc.coincode=#{coincode,jdbcType=VARCHAR}
+		ORDER BY rc.coincode
+  </select>
+   <select id="getMechanismCoinInfo" resultType="com.ytgrading.bean.CoinInfo">
+	   SELECT rc.id, rc.coincode,sc.shortname as guojia,smcbi.years,smcbi.fullsubject,smcbi.facevaluedis,scm.shortname as caizhi,
+		rd.guestWRWeight as zhongliang,rd.guestWRSize as size,rd.version,rc.remark as coinremark,rd.guestWRGrade as grade,
+		rd.requestid,rcs.level,rc.score,rc.ratingreasondis
+		from request_coin rc  left join request_coin_score rcs on rcs.requestcoinid=rc.id, request_detail rd,
+			sys_mechanism_coin_basic_info smcbi left join sys_coin_material scm on scm.id=smcbi.material,
+		sys_country sc,request_main r
+		where rd.id=rc.requestdetailid
+		AND smcbi.country=sc.id
+		AND rd.coinid=smcbi.id
+		AND r.id=rd.requestid
+		AND rc.id=#{requestcoinid,jdbcType=VARCHAR}
+		group by rc.coincode
+   </select>
+   <select id="getMechanismCoinListByReqCode" resultType="com.ytgrading.bean.Statement" parameterType="java.lang.Integer">
+   	SELECT
+		r.entitytype,
+		r.requestcode,
+		smcbi.years,
+		sc.shortname AS coincountry,
+		rc.coincode,
+		rc.tagindex,
+		rc.remark,
+		rc.ratingreasondis,
+		rd.evaluate,
+		rd.numindex,
+		r.usercode,
+		r.customer,
+		r.mobile,
+		r.mail,
+		r.serviceid,
+		r.speed,
+		r.totalamount,
+		r.totalweight,
+		r.totalpreferential,
+		r.othercost,
+		r.totalevaluate,
+		r.totalreqcost,
+		r.totalpremium,
+		r.totaltransportation,
+		r.totalinsurance,
+		r.totalcost,
+		r.sendtype,
+		r.payment,
+		rc.score,
+		ExtractValue (
+			co.fullname,
+			"//value[@lang='zh_CN']"
+		) AS country,
+		ExtractValue (
+			p. NAME,
+			"//value[@lang='zh_CN']"
+		) AS province,
+		ExtractValue (
+			c.fullname,
+			"//value[@lang='zh_CN']"
+		) AS city,
+		ExtractValue (
+			d.fullname,
+			"//value[@lang='zh_CN']"
+		) AS area,
+		r.address,
+		r.paystatus,
+		rd.guestappraisal,
+		rd.totalreqcost AS totalcoincost,
+		rd.coinid,
+		num.gpn AS sameCoinNum
+	FROM
+		(
+			SELECT
+				rc1.coincode,
+				rc1.coinid AS cid,
+				count(*) AS gpn
+			FROM
+				request_coin rc1
+			LEFT JOIN request_detail rd1 ON rc1.requestid = rd1.requestid
+			AND rc1.coinid = rd1.coinid
+			LEFT JOIN request_main r1 ON rc1.requestid = r1.id
+			WHERE
+				r1.requestcode = #{requestcode,jdbcType=INTEGER}
+			GROUP BY
+				rc1.coinid
+		) num,
+		request_coin rc
+	LEFT JOIN request_detail rd ON rc.requestid = rd.requestid
+	AND rc.coinid = rd.coinid
+	LEFT JOIN request_main r ON rc.requestid = r.id
+	LEFT JOIN sys_country co ON r.country = co.id
+	LEFT JOIN sys_province p ON r.province = p.id
+	LEFT JOIN sys_city c ON r.city = c.id
+	LEFT JOIN sys_district d ON r.area = d.id
+	LEFT JOIN sys_mechanism_coin_basic_info smcbi ON rc.coinid = smcbi.id
+	LEFT JOIN sys_country sc ON sc.id = smcbi.country
+	WHERE
+		r.requestcode = #{requestcode,jdbcType=INTEGER}
+	AND num.cid = rd.coinid
+	ORDER BY
+		coincode ASC
+   </select>
+  <select id="getFirstMechanismCoinScores" parameterType="java.lang.String" resultType="com.ytgrading.bean.SearchScore">
+  	SELECT
+		rc.id,
+		rc.coincode,
+		sc.shortname AS guojia,
+		sacbi.years,
+		sacbi.fullsubject,
+		sacbi.facevaluedis,
+		rc.customSize AS size,
+		rc.difversion,
+		scm.shortname AS caizhi,
+		rcs.score,
+		rcs.scoreby,
+		rcs.`level`,
+		rcs.remark,
+		rc.remark AS pubremark,
+		rcs.ratingreasondis
+	FROM
+		request_coin rc
+	LEFT JOIN request_coin_score rcs ON rcs.requestcoinid = rc.id
+	AND rcs.scoreby = #{scoreby}
+	AND rcs.`level` = '1'
+	LEFT JOIN request_detail rd ON rd.id = rc.requestdetailid
+	LEFT JOIN request_main r ON r.id = rc.requestid
+	LEFT JOIN sys_mechanism_coin_basic_info sacbi ON sacbi.id = rc.coinid
+	LEFT JOIN sys_country sc ON sc.id = sacbi.country
+	LEFT JOIN sys_coin_material scm ON scm.id = sacbi.material
+	WHERE
+		rc.requestid = #{requestid}
+	ORDER BY
+		rc.coincode
+  </select>
+ <select id="getSecondMechanismCoinScores" parameterType="java.lang.String" resultType="com.ytgrading.bean.SearchScore">
+	SELECT
+		rc.id,
+		rc.coincode,
+		sacbi.guojia,
+		sacbi.years,
+		sacbi.fullsubject,
+		sacbi.facevaluedis,
+		rc.guestWRGrade AS grade,
+		scm.shortname AS caizhi,
+		rc.customSize AS size,
+		rc.difversion,
+		rcs.score,
+		rcs.scoreby,
+		rcs.`level`,
+		rcs.remark,
+		rc.remark AS pubremark,
+		rcs.ratingreasondis
+	FROM
+		request_coin rc
+	LEFT JOIN request_coin_score rcs ON rcs.requestcoinid = rc.id,
+	(
+		SELECT
+			s.*, ExtractValue (
+				t.fullname,
+				"//value[@lang='zh_CN']"
+			) AS guojia
+		FROM
+			sys_mechanism_coin_basic_info s,
+			sys_country t
+		WHERE
+			s.country = t.id
+	) sacbi
+	LEFT JOIN sys_coin_material scm ON sacbi.material = scm.id,
+	 request_detail rd
+	WHERE
+		rd.id = rc.requestdetailid
+	AND rd.coinid = sacbi.id
+	AND rc.requestid = #{requestid}
+	ORDER BY
+		rc.coincode,
+		rcs. LEVEL,
+		rcs.scoreby
+ </select> 
+  <select id="getMechanismCoin" parameterType="java.lang.String" resultType="com.ytgrading.bean.RequestCoinBean">
+	SELECT
+		rc.id,
+		rc.coincode,
+		sacbi.guojia,
+		years,
+		sacbi.fullsubject,
+		sacbi.facevaluedis,
+		scm.shortname AS caizhi,
+		rc.customSize AS size,
+		rc.difversion,
+		rc.score,
+		rc.remark AS pubremark,
+		rc.ratingreasondis
+	FROM
+		request_detail rd
+	LEFT JOIN request_coin rc ON rc.requestdetailid = rd.id
+	LEFT JOIN request_main r ON r.id = rd.requestid
+	LEFT JOIN (
+		SELECT
+			s.*, ExtractValue (
+				t.fullname,
+				"//value[@lang='zh_CN']"
+			) AS guojia
+		FROM
+			sys_mechanism_coin_basic_info s,
+			sys_country t
+		WHERE
+			s.country = t.id
+	) sacbi ON sacbi.id = rd.coinid
+	LEFT JOIN sys_coin_material scm ON scm.id = sacbi.material
+	WHERE
+		rd.requestid = #{requestid}
+	ORDER BY
+		rc.coincode
+  </select>
+    <select id="getChartMechanismCoins" resultType="com.ytgrading.bean.CoinChart">
+	    SELECT
+			c.years,
+			c.catalogue,
+			(
+				CASE
+				WHEN c.shortsubject IS NULL THEN
+					c.fullsubject
+				ELSE
+					c.shortsubject
+				END
+			) shortsubject,
+			c.version,
+			c.facevaluedis,
+			ExtractValue (
+				t.fullname,
+				"//value[@lang='zh_CN']"
+			) AS country,
+			ExtractValue (
+				m.fullname,
+				"//value[@lang='zh_CN']"
+			) AS material,
+			rc.score,
+			rc.coincode,
+			rc.difversion,
+			rc.ratingreasondis
+		FROM
+			sys_mechanism_coin_basic_info c,
+			sys_coin_material m,
+			sys_country t,
+			request_coin rc
+		WHERE
+			rc.coincode LIKE CONCAT(#{requestCode}, '%')
+		AND rc.coinid = c.id
+		AND m.id = c.material
+		AND t.id = c.country
+		ORDER BY
+			coincode
+  </select>
+    <select id="getPrintData" resultType="com.ytgrading.bean.CoinChart">
+		SELECT
+			c.catalogue,
+			c.years,
+			c.shortsubject,
+			c.version,
+			c.facevaluedis,
+			(
+				CASE
+				WHEN rc.weight IS NOT NULL
+				AND rc.weight != '' THEN
+					rc.weight
+				WHEN rd.guestWRWeight IS NOT NULL
+				AND rd.guestWRWeight != '' THEN
+					rd.guestWRWeight
+				WHEN c.weight IS NOT NULL
+				AND c.weight != '' THEN
+					c.weight
+				END
+			) weight,
+			rc.customsize size,
+			(
+				CASE c.country
+				WHEN c.country = '1' THEN
+					ExtractValue (
+						t.fullname,
+						"//value[@lang='zh_CN']"
+					)
+				ELSE
+					ExtractValue (
+						t.fullname,
+						"//value[@lang='zh_CN']"
+					)
+				END
+			) AS country,
+			(
+				SELECT
+					ExtractValue (
+						m.fullname,
+						"//value[@lang='zh_CN']"
+					)
+				FROM
+					sys_coin_material m
+				WHERE
+					m.id = c.material
+			) material,
+			rc.score,
+			rc.coincode,
+			rc.difversion,
+			rc.ratingreasondis
+		FROM
+			sys_mechanism_coin_basic_info c,
+			sys_country t,
+			request_coin rc,
+			request_detail rd
+		WHERE
+			rc.coincode LIKE CONCAT(#{requestCode}, '%')
+		AND rc.coinid = c.id
+		AND rc.requestdetailid = rd.id
+		AND t.id = c.country
+		ORDER BY
+			coincode
+  </select>
+</mapper>

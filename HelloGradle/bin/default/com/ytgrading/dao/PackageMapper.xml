@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.PackageMapper">
+
+	<insert id="insertPackage" parameterType="com.ytgrading.bean.PackageInfoBean">
+		insert into wms_package_info (packageid,amount,createuserid,createusertime,delflag)
+		values (#{packageid,jdbcType=VARCHAR},#{amount,jdbcType=INTEGER},
+		#{createuserid,jdbcType=INTEGER},#{createusertime,jdbcType=TIMESTAMP},0)
+	</insert>
+	
+	<update id="updatePackage" parameterType="com.ytgrading.bean.PackageInfoBean">
+		update wms_package_info
+		set 
+		amount=#{amount,jdbcType=INTEGER},
+		createuserid=#{createuserid,jdbcType=INTEGER},
+		createusertime=#{createusertime,jdbcType=TIMESTAMP}
+		where packageid=#{packageid,jdbcType=VARCHAR}
+	</update>
+	
+	<select id="selectPackage" resultType="com.ytgrading.bean.PackageInfoBean" parameterType="string">
+		select amount,createuserid,createusertime
+		from wms_package_info where delflag=0 and packageid=#{packageid,jdbcType=VARCHAR}
+	</select>
+	
+	<insert id="insertPackageRelation" parameterType="com.ytgrading.bean.PackageRelationBean">
+		insert into wms_package_relation (businesstype,formid,entityid,amount,packageid,delflag)
+		values (0,#{formid,jdbcType=VARCHAR},-1,#{amount,jdbcType=INTEGER},
+		#{packageid,jdbcType=VARCHAR},0)
+	</insert>
+	
+	<update id="updatePackageRelation" parameterType="com.ytgrading.bean.PackageRelationBean">
+		update wms_package_relation
+		set
+		amount=#{amount,jdbcType=INTEGER}
+		where packageid=#{packageid,jdbcType=VARCHAR}
+	</update>
+	
+	<update id="changePackage" parameterType="com.ytgrading.bean.RequestBean">
+		update request_main
+		set 
+		internalstates=14
+		where id=#{id,jdbcType=VARCHAR}
+	</update>
+	
+	<update id="doPackage" parameterType="com.ytgrading.bean.RequestBean">
+		update request_main
+		set 
+		internalstates=13
+		where id=#{id,jdbcType=VARCHAR}
+	</update>
+
+</mapper>

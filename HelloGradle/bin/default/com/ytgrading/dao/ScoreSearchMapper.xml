@@ -1,0 +1,665 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.ScoreSearchMapper">
+	<select id="getScoreSearch" resultType="com.ytgrading.bean.ScoreSearch"
+		parameterType="com.ytgrading.bean.ScoreSearch">
+		SELECT * FROM score_search_show WHERE coinid &lt; 0 AND
+		issuecode &lt; 0 AND flag=0 ORDER BY scoredate DESC,coinid DESC LIMIT
+		0,3
+	</select>
+	<select id="getTopTwentySearch" resultType="com.ytgrading.bean.ScoreSearch"
+		parameterType="com.ytgrading.bean.ScoreSearch">
+		SELECT
+		*
+		FROM
+		(SELECT
+		coinid,
+		coinname,
+		coinnum,
+		onehundred,
+		ninetynine,
+		ninetyeight,
+		ninetyseven,
+		ninetysix,
+		ninetyfivedesc,
+		scoretime,
+		flag,
+		scoredate,
+		issuecode
+		FROM
+		score_search_show
+		WHERE issuecode
+		> - 1
+		AND flag=0
+		ORDER BY scoretime DESC,
+		coinnum DESC) b
+		ORDER BY
+		coinname DESC
+	</select>
+	<select id="getSpaceCoin" resultType="com.ytgrading.bean.SpaceDay">
+		SELECT
+		requestcode AS
+		coinrequestcode,
+		COUNT(1) AS coinamount
+		FROM
+		request_coin rc
+		LEFT JOIN
+		request_main rm
+		ON rc.requestid = rm.id
+		WHERE requestid IN
+		(SELECT
+		id
+		FROM
+		request_main
+		WHERE requestcode IN (
+		19040,
+		19042,
+		18196,
+		18197,
+		18199,
+		18248,
+		18140,
+		18255,
+		18338,
+		18360,
+		19044,
+		19036,
+		19041,
+		19035,
+		17788,
+		18986,
+		18987,
+		18988,
+		18989,
+		19029,
+		19031,
+		18977,
+		18981,
+		18253,
+		18254,
+		18153,
+		18155,
+		17089,
+		18152,
+		18173,
+		18157,
+		18251,
+		18252,
+		18357,
+		18351,
+		18142,
+		18144,
+		17525,
+		18288,
+		18167,
+		18143,
+		18156,
+		18171,
+		18174,
+		18163,
+		18161,
+		17088,
+		18188,
+		18337,
+		18526,
+		18984,
+		16196,
+		17289,
+		18189,
+		18191,
+		17080,
+		18521,
+		17798,
+		17799,
+		18172,
+		20563
+		))
+		AND coinid = 22777
+		GROUP BY requestcode
+	</select>
+	<select id="getSpaceBill" resultType="com.ytgrading.bean.SpaceDay">
+		SELECT requestcode AS
+		billrequestcode,COUNT(1)
+		AS billamount FROM request_coin rc LEFT JOIN
+		request_main rm ON
+		rc.requestid=rm.id WHERE requestid IN(
+		SELECT
+		id
+		FROM
+		request_main
+		WHERE requestcode IN (
+		18162,
+		18139,
+		19043,
+		19037,
+		18160,
+		18358,
+		18356,
+		18353,
+		18352,
+		17524,
+		19046,
+		18354,
+		18346,
+		18347,
+		18531,
+		20435,
+		18972,
+		18985,
+		18587,
+		18195,
+		18536,
+		17512,
+		19289,
+		20431,
+		18525,
+		20152,
+		19358,
+		19371,
+		17290,
+		19427,
+		19428,
+		19429,
+		19430,
+		19431,
+		19422,
+		19423,
+		19424,
+		19425,
+		19426,
+		20629,
+		20452,
+		20605,
+		20472,
+		20527,
+		20601,
+		20466,
+		20436,
+		19255,
+		19366,
+		10947,
+		18538,
+		20516
+		)) AND coinid=22778
+		GROUP BY requestcode
+	</select>
+	<select id="getTwoAnniversary" resultType="com.ytgrading.bean.SpaceDay">
+		SELECT
+		requestcode AS billrequestcode,
+		totalamount AS billamount
+		FROM
+		request_main
+		WHERE requestcode IN (
+		17189,
+		17315,
+		17528,
+		15898,
+		15866,
+		15856,
+		15361,
+		15899,
+		15362,
+		17147,
+		15895,
+		15365,
+		15366,
+		15363,
+		17325,
+		17328,
+		17540,
+		17327,
+		17326,
+		20162,
+		17543,
+		15896,
+		17298,
+		17335,
+		17994,
+		17362,
+		17350,
+		17351,
+		17352,
+		17353,
+		17355,
+		16245,
+		17361,
+		17360,
+		17963,
+		17962,
+		17961,
+		17186,
+		17535,
+		17537,
+		17513,
+		17185,
+		17183,
+		17168,
+		17169,
+		17171,
+		17170,
+		15352,
+		15768,
+		15359,
+		20906,
+		20909,
+		20908,
+		15698,
+		15696,
+		17356,
+		17357,
+		17358,
+		17359,
+		17397,
+		12066,
+		12088,
+		17977,
+		16235,
+		17149,
+		17172,
+		17175,
+		17195,
+		18469,
+		18468,
+		15699,
+		17316,
+		17317,
+		17318,
+		17319,
+		17320,
+		15891,
+		15782,
+		15786,
+		15781,
+		15780,
+		15779,
+		15778,
+		15772,
+		16244,
+		16250,
+		16249,
+		17990,
+		17979,
+		17975,
+		17972,
+		17976,
+		17980,
+		17982,
+		17983,
+		15883,
+		13488,
+		15885,
+		14488,
+		15881,
+		15880,
+		15890,
+		15889
+		)
+	</select>
+	<insert id="addModernCoin" parameterType="com.ytgrading.bean.ScoreSearch">
+		INSERT INTO
+		score_search (
+		coinid,
+		coinname,
+		coinnum,
+		onehundred,
+		ninetynine,
+		ninetyeight,
+		ninetyseven,
+		ninetysix,
+		ninetyfivedesc,
+		scoretime,
+		flag,
+		scoredate,
+		issuecode
+		)
+		SELECT
+		-1,
+		'现代贵金属纪念币',
+		COUNT(*) c,
+		SUM(
+		CASE
+		WHEN score
+		=
+		100
+		THEN 1
+		ELSE 0
+		END) 100分,
+		SUM(
+		CASE
+		WHEN score = 99
+		THEN 1
+		ELSE 0
+		END) 99分,
+		SUM(
+		CASE
+		WHEN score = 98
+		THEN 1
+		ELSE 0
+		END) 98分,
+		SUM(
+		CASE
+		WHEN score = 97
+		THEN 1
+		ELSE 0
+		END) 97分,
+		SUM(
+		CASE
+		WHEN score = 96
+		THEN 1
+		ELSE 0
+		END) 96分,
+		SUM(
+		CASE
+		WHEN score BETWEEN 0
+		AND 95
+		THEN 1
+		ELSE 0
+		END
+		) "0-95分",
+		NOW(),
+		'0',
+		CURDATE(),
+		'-1'
+		FROM
+		request_coin rc
+		LEFT JOIN coin c
+		ON c.id = rc.coinid
+		WHERE score IS NOT NULL
+		AND score &gt; - 1
+		AND score &lt;= 100
+		AND
+		c.issuecode IN (1,101)
+	</insert>
+	<insert id="addFlowCoin" parameterType="com.ytgrading.bean.ScoreSearch">
+		INSERT INTO score_search
+		(
+		coinid,
+		coinname,
+		coinnum,
+		onehundred,
+		ninetynine,
+		ninetyeight,
+		ninetyseven,
+		ninetysix,
+		ninetyfivedesc,
+		scoretime,
+		flag,
+		scoredate,
+		issuecode
+		)
+		SELECT
+		-2,
+		'现代流通纪念币',
+		COUNT(*) c,
+		SUM(
+		CASE
+		WHEN score = 100
+		THEN 1
+		ELSE 0
+		END) 100分,
+		SUM(
+		CASE
+		WHEN score = 99
+		THEN 1
+		ELSE 0
+		END) 99分,
+		SUM(
+		CASE
+		WHEN score = 98
+		THEN 1
+		ELSE 0
+		END) 98分,
+		SUM(
+		CASE
+		WHEN score = 97
+		THEN 1
+		ELSE
+		0
+		END) 97分,
+		SUM(
+		CASE
+		WHEN score = 96
+		THEN 1
+		ELSE 0
+		END) 96分,
+		SUM(
+		CASE
+		WHEN
+		score BETWEEN 0
+		AND 95
+		THEN 1
+		ELSE 0
+		END
+		) "0-95分",
+		NOW(),
+		'0',
+		CURDATE(),
+		'-1'
+		FROM
+		request_coin rc
+		LEFT JOIN coin c
+		ON c.id = rc.coinid
+		WHERE score
+		IS NOT NULL
+		AND score &gt; - 1
+		AND score &lt;= 100
+		AND c.issuecode IN
+		(3,103)
+	</insert>
+	<insert id="addBillCoin" parameterType="com.ytgrading.bean.ScoreSearch">
+		INSERT INTO score_search
+		(
+		coinid,
+		coinname,
+		coinnum,
+		onehundred,
+		ninetynine,
+		ninetyeight,
+		ninetyseven,
+		ninetysix,
+		ninetyfivedesc,
+		scoretime,
+		flag,
+		scoredate,
+		issuecode
+		)
+		SELECT
+		-3,
+		'纸钞',
+		COUNT(*) c,
+		SUM(
+		CASE
+		WHEN score = 100
+		THEN 1
+		ELSE
+		0
+		END) 100分,
+		SUM(
+		CASE
+		WHEN score = 99
+		THEN 1
+		ELSE 0
+		END) 99分,
+		SUM(
+		CASE
+		WHEN
+		score = 98
+		THEN 1
+		ELSE 0
+		END) 98分,
+		SUM(
+		CASE
+		WHEN score = 97
+		THEN 1
+		ELSE 0
+		END) 97分,
+		SUM(
+		CASE
+		WHEN score = 96
+		THEN 1
+		ELSE 0
+		END) 96分,
+		SUM(
+		CASE
+		WHEN
+		score BETWEEN 0
+		AND 95
+		THEN 1
+		ELSE 0
+		END
+		) "0-95分",
+		NOW(),
+		'0',
+		CURDATE(),
+		'-1'
+		FROM
+		request_coin rc
+		LEFT JOIN request_main r
+		ON r.id = rc.requestid
+		WHERE score IS NOT NULL
+		AND score &gt; - 1
+		AND score &lt;= 100
+		AND
+		r.entitytype=2
+	</insert>
+	<insert id="addAllCoin" parameterType="com.ytgrading.bean.ScoreSearch">
+		INSERT INTO score_search (
+		coinid,
+		coinname,
+		coinnum,
+		onehundred,
+		ninetynine,
+		ninetyeight,
+		ninetyseven,
+		ninetysix,
+		ninetyfivedesc,
+		scoretime,
+		flag,
+		scoredate,
+		issuecode
+		)
+		SELECT
+		*
+		FROM
+		(SELECT
+		coinid,
+		(
+		CASE
+		WHEN b.commonlysubject = ''
+		THEN CONCAT(b.years, '年', b.concatname)
+		WHEN b.commonlysubject IS NULL
+		THEN CONCAT(b.years, '年', b.concatname)
+		ELSE b.commonlysubject
+		END
+		) AS
+		coinname,
+		COUNT(*) c,
+		SUM(
+		CASE
+		WHEN score = 100
+		THEN 1
+		ELSE 0
+		END) "100 分",
+		SUM(
+		CASE
+		WHEN score = 99
+		THEN 1
+		ELSE 0
+		END) "99 分",
+		SUM(
+		CASE
+		WHEN score = 98
+		THEN 1
+		ELSE 0
+		END) "98 分",
+		SUM(
+		CASE
+		WHEN score = 97
+		THEN 1
+		ELSE 0
+		END) "97
+		分",
+		SUM(
+		CASE
+		WHEN score = 96
+		THEN 1
+		ELSE 0
+		END) "96 分",
+		SUM(
+		CASE
+		WHEN score
+		BETWEEN 0
+		AND 95
+		THEN 1
+		ELSE 0
+		END
+		) "0-95分",
+		NOW(),
+		'0',
+		CURDATE(),
+		b.issuecode
+		FROM
+		request_coin rc,
+		request_main r,
+		(SELECT
+		*
+		FROM
+		(SELECT
+		c.id,
+		c.commonlysubject,
+		c.issuecode,
+		c.years,
+		CONCAT(
+		IFNULL(sc.shortname, ''),
+		c.shortsubject,
+		IFNULL(c.weightshow, ''),
+		IFNULL(scm.shortname, ''),
+		'币',
+		CASE
+		WHEN mquality = 2
+		THEN '（精制）'
+		WHEN
+		mquality = 3
+		THEN '（普样）'
+		WHEN mquality = 4
+		THEN '（精样）'
+		WHEN mquality = 5
+		THEN '（样本）'
+		ELSE ''
+		END
+		) AS concatname
+		FROM
+		coin c,
+		sys_country sc,
+		sys_coin_material scm
+		WHERE c.country = sc.id
+		AND scm.id = c.material) a
+		UNION
+		ALL
+		SELECT
+		id,
+		commonlysubject,
+		'0',
+		years,
+		CONCAT(
+		shortsubject,
+		IFNULL(facevaluedis, ''),
+		IFNULL(wmk, '')
+		) AS concatname
+		FROM
+		sys_bill_basic_info) b
+		WHERE r.id = rc.requestid
+		AND b.id = rc.coinid
+		AND score IS NOT NULL
+		AND score &gt; - 1
+		AND score &lt;= 100
+		AND
+		r.entitytype IN (1, 2)
+		AND b.issuecode IN (0, 1, 101, 3, 103)
+		GROUP BY
+		coinid
+		ORDER BY c DESC
+		LIMIT 0, 30) d
+		ORDER BY coinname DESC
+	</insert>
+</mapper>

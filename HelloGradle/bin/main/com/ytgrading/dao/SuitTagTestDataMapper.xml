@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.SuitTagTestDataMapper">
+	<select id="getChartSuits" resultType="com.ytgrading.bean.CoinChart">
+	SELECT c.years,c.catalogue,c.shortsubject,c.enshortsubject,c.version,c.facevaluedis,c.weightshow,c.size,IFNULL(rc.addremarks,c.addremarks) AS addremarks,
+		   case c.country when c.country='1' then
+				ExtractValue(t.fullname, "//value[@lang='zh_CN']")
+		   else
+		      ExtractValue(t.fullname, "//value[@lang='en_US']")
+		   end as country, 
+		   case c.country when c.country='1' then
+				ExtractValue(q.fullname, "//value[@lang='zh_CN']")
+		   else
+		       ExtractValue(q.fullname, "//value[@lang='en_US']")
+		   end as mquality,
+		   case c.country when c.country='1' then
+				ExtractValue(m.fullname, "//value[@lang='zh_CN']")
+		   else
+		      ExtractValue(m.fullname, "//value[@lang='en_US']")
+		   end as material, 
+			c.issuecode,
+			rc.score,rc.scores,rc.coincode,rc.difversion,rc.ratingreasondis
+		FROM sys_suit_basic_info c, sys_coin_mquality q ,sys_coin_material m ,sys_country t,request_coin rc
+		WHERE rc.coincode LIKE CONCAT(#{requestCode},'%')
+			AND rc.coinid = c.id
+			AND q.id = c.mquality
+			AND m.id = c.material
+			AND t.id = c.country
+			order by coincode
+	</select>
+</mapper>

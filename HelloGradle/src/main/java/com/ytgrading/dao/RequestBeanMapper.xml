@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.RequestBeanMapper">
+	<select id="selectOneRequestBean" resultType="com.ytgrading.bean.RequestBean"
+		parameterType="java.lang.String">
+		SELECT
+		*
+		FROM
+		request_main
+		WHERE
+		id = #{id,jdbcType=VARCHAR}
+		OR
+		requestcode = #{id,jdbcType=VARCHAR}
+		GROUP BY id DESC
+		LIMIT 1
+	</select>
+	<select id="findreqcoinbyid" resultType="com.ytgrading.bean.RequestBean">
+		SELECT
+		*
+		FROM
+		request_main
+		WHERE
+		requestcode in
+		<foreach collection="requestcodes" item="item" open="("  separator="," close=")">
+			#{item}
+		</foreach>
+		or
+		id in
+		<foreach collection="requestcodes" item="item" open="("  separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+	<insert id="insert" parameterType="com.ytgrading.bean.RequestBean">
+		insert into request_main (id,
+		requestcode, packagecode,
+		usercode, userid, boxcode,
+		customer, mobile,
+		tel,
+		fax, mail, serviceid,
+		speed, speedext, wapper,
+		sendtype, sendmethod,
+		receiver,
+		receivertel, receivermobile, receivermail,
+		country, province,
+		city,
+		area, address, payment,
+		remark, totalpremium, totaltransportation,
+		totalpreferential,
+		totalinsurance, totalreqcost, totalcost,
+		totalweight, totalamount, totalevaluate,
+		zip, requesttime,
+		requeststatus,
+		updatetime, delflag, internalstates,
+		imgpath, ownid,
+		deliveryno,
+		paystatus, confirmstatus, notice,
+		applytime,applytype,usedeals,resid,agreement,usercardtype,usercardcode,addedcoinremark,entitytype,createtime,isproxy)
+		values (#{id,jdbcType=VARCHAR}, #{requestcode,jdbcType=INTEGER},
+		#{packagecode,jdbcType=VARCHAR},
+		#{usercode,jdbcType=INTEGER},
+		#{userid,jdbcType=VARCHAR}, #{boxcode,jdbcType=VARCHAR},
+		#{customer,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR},
+		#{tel,jdbcType=VARCHAR},
+		#{fax,jdbcType=VARCHAR},
+		#{mail,jdbcType=VARCHAR}, #{serviceid,jdbcType=CHAR},
+		#{speed,jdbcType=CHAR}, #{speedext,jdbcType=INTEGER},
+		#{wapper,jdbcType=CHAR},
+		#{sendtype,jdbcType=CHAR},
+		#{sendmethod,jdbcType=CHAR}, #{receiver,jdbcType=VARCHAR},
+		#{receivertel,jdbcType=VARCHAR}, #{receivermobile,jdbcType=VARCHAR},
+		#{receivermail,jdbcType=VARCHAR},
+		#{country,jdbcType=INTEGER},
+		#{province,jdbcType=INTEGER}, #{city,jdbcType=INTEGER},
+		#{area,jdbcType=INTEGER}, #{address,jdbcType=VARCHAR},
+		#{payment,jdbcType=VARCHAR},
+		#{remark,jdbcType=VARCHAR},
+		#{totalpremium,jdbcType=DECIMAL},
+		#{totaltransportation,jdbcType=DECIMAL},
+		#{totalpreferential,jdbcType=DECIMAL},
+		#{totalinsurance,jdbcType=DECIMAL}, #{totalreqcost,jdbcType=DECIMAL},
+		#{totalcost,jdbcType=DECIMAL},
+		#{totalweight,jdbcType=DECIMAL},
+		#{totalamount,jdbcType=INTEGER}, #{totalevaluate,jdbcType=DECIMAL},
+		#{zip,jdbcType=VARCHAR}, #{requesttime,jdbcType=TIMESTAMP},
+		#{requeststatus,jdbcType=CHAR},
+		#{updatetime,jdbcType=TIMESTAMP},
+		#{delflag,jdbcType=CHAR}, #{internalstates,jdbcType=CHAR},
+		#{imgpath,jdbcType=VARCHAR}, #{ownid,jdbcType=VARCHAR},
+		#{deliveryno,jdbcType=VARCHAR},
+		#{paystatus,jdbcType=CHAR},
+		#{confirmstatus,jdbcType=CHAR}, #{notice,jdbcType=CHAR},
+		#{applytime,jdbcType=TIMESTAMP},#{applytype,jdbcType=CHAR},
+		#{usedeals,jdbcType=CHAR},
+		#{resid,jdbcType=INTEGER},
+		#{agreement,jdbcType=CHAR}, #{usercardtype,jdbcType=CHAR},
+		#{usercardcode,jdbcType=VARCHAR}, #{addedcoinremark,jdbcType=VARCHAR},
+		#{entitytype,jdbcType=INTEGER},#{createtime,jdbcType=TIMESTAMP},#{isproxy,jdbcType=CHAR})
+	</insert>
+
+	<delete id="delete" parameterType="java.lang.String">
+		delete from request_main
+		where id =
+		#{id} or requestcode=#{id}
+	</delete>
+	<select id="searchCount" resultType="java.lang.Integer">
+		select count(*) from request_main
+		where delflag!=2 and DATE_FORMAT(createtime,'%y-%m-%d')=DATE_FORMAT(NOW(),'%y-%m-%d') and usercode=#{usercode,jdbcType=VARCHAR}
+	</select>
+	<select id="searchEdit" resultType="java.lang.Integer">
+		select count(*) from request_main
+		where requestcode=#{requestcode,jdbcType=VARCHAR}
+	</select>
+	
+	<update id="forOutbound" parameterType="java.lang.Integer">
+		update 
+		set request_main
+		requeststatus=6
+		where requestcode=#{requestcode,jdbcType=INTEGER}
+	</update>
+	
+	<update id="outbound" parameterType="java.lang.Integer">
+		update 
+		set request_main
+		requeststatus=7
+		where requestcode=#{requestcode,jdbcType=INTEGER}
+	</update>
+	
+</mapper>

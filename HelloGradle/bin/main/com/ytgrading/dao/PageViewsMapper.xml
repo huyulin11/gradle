@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.PageViewsMapper" >
+  <select id="checkPageExists" resultType="java.lang.String" parameterType="java.lang.String">
+  	select count(*) from page_views where page =#{page,jdbcType=VARCHAR}
+  </select>
+  <select id="getPageViews" resultType="com.ytgrading.dto.PageViews" parameterType="java.lang.String">
+  	select * from page_views where page =#{page,jdbcType=VARCHAR}
+  </select>
+  <insert id="insertPageViews" parameterType="java.lang.String">
+  	insert into page_views(page,num) values(#{page,jdbcType=VARCHAR},1)
+  </insert>
+  <update id="updatePageViews" parameterType="com.ytgrading.dto.PageViews">
+  	update page_views set num=#{num,jdbcType=INTEGER} where page = #{page,jdbcType=VARCHAR}
+  </update>
+</mapper>

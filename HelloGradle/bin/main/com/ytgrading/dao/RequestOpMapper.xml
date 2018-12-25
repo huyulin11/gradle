@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.RequestOpMapper" >
+  <update id="updateRequestStatus" parameterType="java.lang.String" >
+   update request_main 
+      set requeststatus=#{oStatus,jdbcType=VARCHAR},internalstates=#{iStatus,jdbcType=VARCHAR}
+    where requestcode in 
+  <foreach item="item" index="index" collection="scope"
+    open="(" separator="," close=")">
+    #{item}
+  </foreach>
+  </update> 
+</mapper>

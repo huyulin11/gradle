@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kaifantech.mappings.ErpTaskMapper">
+	<sql id="searchId">
+		lt.requestid,
+		lt.code,
+		lt.requesttime,
+		lt.requeststatus,
+		lt.updatetime,
+		lt.speed,
+		lt.duetime,
+		lt.totalamount,
+		lt.sendtype,
+		lt.flag,
+		lt.STATUS,
+		lt.payinfo,
+		lt.entitytype,
+		rm.usercode
+	</sql>
+	<select id="ratingTaskPage" resultType="com.kaifantech.entity.TaskFormMap">
+		SELECT
+			rm.id requestid,
+			rm.requesttime,
+			rm.internalstates,
+			rm.requestcode,
+			rm.updatetime,
+			rm.speed,
+			rm.duetime,
+			rm.totalamount,
+			rm.sendtype,
+			rm.entitytype,
+			rm.usercode,
+			rr.remark
+		FROM
+			request_main rm
+			LEFT JOIN request_remark rr ON rm.requestcode = rr.requestcode
+		WHERE
+			rm.internalstates in (11, 13)
+		<if test="requestcode != null and requestcode != ''">
+			and rm.requestcode like '%${requestcode}%'
+		</if>
+		order by rm.updatetime
+	</select>
+	<select id="ratingTaskPageOther" resultType="com.kaifantech.entity.TaskFormMap">
+		SELECT
+			rm.id requestid,
+			rm.requesttime,
+			rm.internalstates,
+			rm.requestcode,
+			rm.updatetime,
+			rm.speed,
+			rm.duetime,
+			rm.totalamount,
+			rm.sendtype,
+			rm.entitytype,
+			rm.usercode,
+			rr.remark
+		FROM
+			request_main rm
+			LEFT JOIN request_remark rr ON rm.requestcode = rr.requestcode
+		WHERE
+			rm.internalstates=12 AND rm.requeststatus!=7
+		<if test="requestcode != null and requestcode != ''">
+			and rm.requestcode like '%${requestcode}%'
+		</if>
+		order by rm.updatetime
+	</select>
+	<select id="evaluationTaskPage" resultType="com.kaifantech.entity.TaskFormMap">
+		select * from (select
+		dta.opuserid,
+		dm.reservno,
+		CONCAT(lu.`userName`,'-',lu.`accountName`)AS userAccount,
+		dm.innerno,
+		dm.entitytype,
+		group_concat(ea.aliasname) as aliasname,
+		dc.amount,
+		dm.applytime,
+		dm.deposittime,
+		dc.remark,
+		dm.id as depositid,
+		dm.depositstate
+		from deposit_main dm left join deposit_class
+		dc on dc.depositid=dm.id left join entity_alias ea on
+		dm.userid=ea.userid and
+		dc.entityid=ea.entityid LEFT JOIN ly_user lu ON
+		lu.id=dm.userid LEFT JOIN deposit_task_arrange dta ON dm.id=dta.depositid 
+		where 1=1
+		<if test="DepositManagerRole == 205">
+			and dm.depositstate &gt;=-3 and dm.depositstate &lt;10
+		</if>
+		<if test="DepositCustomSerManagerRole == 207 and DepositManagerRole != 205">
+			and dm.depositstate != -1
+		</if>
+		<if test="DepositCustomServiceRole == 206 and DepositManagerRole != 205 and DepositCustomSerManagerRole != 207">
+			and dm.depositstate &gt;= 0
+		</if>
+		<if test="DepositQualityContrManagerRole == 208 and DepositManagerRole != 205 and DepositCustomServiceRole != 206 and DepositCustomSerManagerRole != 207">
+			and dm.depositstate in (-3,3,4,5,6,7,8)
+		</if>
+		<if test="checkDepositRole == 211 and DepositManagerRole != 205 and DepositCustomServiceRole != 206 and DepositCustomSerManagerRole != 207 and DepositQualityContrManagerRole != 208">
+			and dm.depositstate = 4 and dm.ownid=${userId}
+		</if>
+		<if test="checkDepositRole == 225 and DepositManagerRole != 205 and DepositCustomServiceRole != 206 and DepositCustomSerManagerRole != 207 and DepositQualityContrManagerRole != 208">
+			and dm.depositstate in (7,8) and dm.ownid=${userId}
+		</if>
+		<if test="innerno != null and innerno != ''">
+			and dm.innerno like '%${innerno}%'
+		</if>
+		<if test="entitytype != null and entitytype != ''">
+			and dm.entitytype = ${entitytype}
+		</if>
+		<!-- <if test="amountstart != null and amountstart != ''"> and dc.amount 
+			&gt;= ${amountstart} </if> <if test="amountend != null and amountend != ''"> 
+			and dc.amount &lt;= ${amountend} </if> <if test="amount != null and amount 
+			!= ''"> and dc.amount &gt; ${amount} </if> -->
+		<if test="deposittimestart != null and deposittimestart != ''">
+			and dm.deposittime &gt; '${deposittimestart}'
+		</if>
+		<if test="deposittimeend != null and deposittimeend != ''">
+			and dm.deposittime &lt; '${deposittimeend}'
+		</if>
+		<if test="depositstatus != null and depositstatus != ''">
+			and dm.depositstate = '${depositstatus}'
+		</if>
+		group by innerno) a
+	</select>
+	<select id="amountcount" resultType="java.lang.String"
+		parameterType="com.ytgrading.bean.DepositForm">
+		select
+		CONCAT('预约数量：',ifnull(convert(SUM(a.amount),char),'0'),'
+		托管单数：',ifnull(convert(COUNT(*),char),'0')) AS amountcount
+		from (SELECT
+		dm.innerno,
+		dm.entitytype,
+		GROUP_CONCAT(ea.aliasname) AS aliasname,
+		dc.amount,
+		dm.applytime,
+		dm.deposittime,
+		dc.remark,
+		dm.id AS depositid,
+		dm.depositstate
+		FROM deposit_main dm left join deposit_class dc on
+		dc.depositid=dm.id left
+		join entity_alias ea on dc.entityid=ea.entityid
+		where 1=1
+		<if test="innerno != null and innerno != ''">
+			and dm.innerno like '%${innerno}%'
+		</if>
+		<if test="entitytype != null and entitytype != ''">
+			and dm.entitytype = ${entitytype}
+		</if>
+		<!--<if test="amountstart != null and amountstart != ''"> and dc.amount 
+			&gt;= ${amountstart} </if> <if test="amountend != null and amountend != ''"> 
+			and dc.amount &lt;= ${amountend} </if> <if test="amount != null and amount 
+			!= ''"> and dc.amount &gt; ${amount} </if> -->
+		<if test="deposittimestart != null and deposittimestart != ''">
+			and dm.deposittime &gt; '${deposittimestart}'
+		</if>
+		<if test="deposittimeend != null and deposittimeend != ''">
+			and dm.deposittime &lt; '${deposittimeend}'
+		</if>
+		<if test="depositstatus != null and depositstatus != ''">
+			and dm.depositstate &lt; '${depositstatus}'
+		</if>
+		GROUP BY innerno) a
+	</select>
+	<select id="flagEvaluation" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM
+		deposit_main dm,
+		deposit_class dc,
+		entity_alias ea,
+		deposit_judge_result
+		djr
+		WHERE dc.depositid = dm.id
+		AND dc.entityid = ea.entityid
+		AND dc.id =
+		djr.depositclassid
+		AND (dm.innerno=#{innerno,jdbcType=INTEGER} or
+		dc.id=#{innerno,jdbcType=INTEGER})
+		AND
+		ea.aliasname=#{aliasname,jdbcType=VARCHAR}
+	</select>
+	<select id="editShowEvaluation" parameterType="java.lang.String"
+		resultType="com.kaifantech.entity.TaskFormMap">
+		SELECT
+		dc.id,
+		dm.entitytype,
+		ea.aliasname,
+		dc.amount,
+		djr.numreal,
+		djr.numtestok,
+		djr.numtestnotok,
+		djr.remark
+		FROM
+		deposit_main
+		dm,
+		entity_alias ea,
+		deposit_class dc,
+		deposit_judge_result djr
+		WHERE
+		dc.depositid = dm.id
+		AND dc.entityid = ea.entityid
+		AND dc.id =
+		djr.depositclassid
+		AND dm.innerno=#{innerno,jdbcType=INTEGER}
+		AND
+		ea.aliasname=#{aliasname,jdbcType=VARCHAR}
+	</select>
+	<select id="addShowEvaluation" parameterType="java.lang.String"
+		resultType="com.kaifantech.entity.TaskFormMap">
+		SELECT
+		dc.id,
+		dm.entitytype,
+		ea.aliasname,
+		dc.amount
+		FROM
+		deposit_main dm,
+		entity_alias ea,
+		deposit_class dc
+		WHERE dc.depositid =
+		dm.id
+		AND dc.entityid = ea.entityid
+		AND
+		dm.innerno=#{innerno,jdbcType=INTEGER}
+		AND
+		ea.aliasname=#{aliasname,jdbcType=VARCHAR}
+	</select>
+	<update id="depositStateChange" parameterType="java.lang.String">
+		update
+		deposit_main set depositstate=#{nextstate,jdbcType=VARCHAR} where
+		id=#{depositid,jdbcType=VARCHAR} and
+		depositstate=#{rawstate,jdbcType=VARCHAR}
+	</update>
+	<select id="checkAddArrange" resultType="com.ytgrading.bean.deposit.DepositTaskArrange">
+		select * from
+		deposit_task_arrange
+	</select>
+	<select id="searchByIdArrange" resultType="com.ytgrading.bean.deposit.DepositTaskArrange">
+		select * from
+		deposit_task_arrange where depositid=#{depositid,jdbcType=VARCHAR} and
+		optype=#{optype,jdbcType=INTEGER}
+	</select>
+	<insert id="insertDepositTaskArrange" parameterType="java.util.List">
+		INSERT INTO `deposit_task_arrange` (
+		`depositid`,
+		`optype`,
+		`opuserid`,
+		`arruserid`,
+		`remark`,
+		`createtime`,
+		`delflag`
+		)
+		VALUES
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(
+			#{item.depositid,jdbcType=VARCHAR},
+			#{item.optype,jdbcType=INTEGER},
+			#{item.opuserid,jdbcType=VARCHAR},
+			#{item.arruserid,jdbcType=INTEGER},
+			#{item.remark,jdbcType=VARCHAR},
+			now(),
+			#{item.delflag,jdbcType=INTEGER}
+			)
+		</foreach>
+	</insert>
+</mapper>

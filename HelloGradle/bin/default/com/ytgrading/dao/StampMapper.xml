@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.StampMapper">
+<select id="selectStampDetail" resultType="com.ytgrading.bean.Review" parameterType="java.lang.String">
+		SELECT  
+		  rd.coinid,
+		  rd.amount,
+		  rd.evaluate guestappraisal,
+		  sacbi.evaluate,
+		  rd.score,
+		  rd.remark,
+		  rd.numindex,
+		  rd.totalreqcost,
+		  rd.totalevaluate,
+		  rd.amountofissue,
+		  rd.guestappraisal,
+		  rd.wmk,
+		  rd.whetherSample,
+		  rd.blockNum,
+		  rd.guestWRSize as size,
+		  rd.guestWRWeight as zhongliang,
+		  sacbi.fullsubject,
+		  sacbi.shortsubject,
+		  sacbi.facevaluedis,
+		  sacbi.zhino,
+		  sacbi.color,
+		  sacbi.issuedate,
+		  sacbi.issuetime,
+		  sacbi.issuingquantity,
+		  rd.stampjointype,
+		    (SELECT money FROM sys_box_basic_info box
+			WHERE boxid=box.id) as boxCost,
+		  ExtractValue(st.fullname, "//value[@lang='zh_CN']") guojia,
+		  rd.version 
+		FROM
+		  request_detail rd,
+		  sys_stamp_basic_info sacbi,
+		  sys_country st 
+		WHERE rd.coinid = sacbi.id 
+		  AND sacbi.country = st.id 
+		  AND rd.requestid = #{id,jdbcType=VARCHAR}
+		ORDER BY rd.numindex 
+	</select>
+	
+	<select id="selectStampInfo" resultType="com.ytgrading.bean.SysStampBasicInfo" parameterType="java.lang.Integer">
+		SELECT  
+		  *
+		FROM
+		  sys_stamp_basic_info sacbi left join sys_country sc
+		  on sc.id=sacbi.country
+		WHERE sacbi.id = #{id,jdbcType=INTEGER}
+	</select>
+	
+	<select id="getStampData" parameterType="com.ytgrading.bean.Entityview" resultType="com.ytgrading.bean.SysStampBasicInfo">
+		SELECT 
+		  sacbi.id,
+		  catalogue,
+		  zhino,
+		  color,
+		  issuedate,
+		  sacbi.issuingquantity,
+		  issuetime,
+		  country,
+		  ExtractValue (
+		    c.fullname,
+		    "//value[@lang='zh_CN']"
+		  ) guojia,
+		  fullsubject,
+		  shortsubject,
+		  commonlysubject,
+		  facevaluedis,
+			(SELECT money FROM sys_box_basic_info box
+			WHERE boxid=box.id) as boxCost,
+		  size,
+		  version,
+		  evaluate,
+		  remarks,
+		  CONCAT_WS(
+		    c.shortname,
+		    fullsubject,
+		    shortsubject,
+		    commonlysubject,
+		    shortsubject,
+		    facevaluedis,
+		    VERSION
+		  ) 
+		FROM
+		  sys_stamp_basic_info sacbi,
+		  sys_country c 
+		WHERE c.id = sacbi.country 
+		<if test="country != null and country != ''" >
+			and sacbi.country =#{country}
+      	</if>
+      	<if test="facevaluedis != null and facevaluedis != ''" >
+			and sacbi.facevaluedis  like  CONCAT("%",#{facevaluedis},"%")
+      	</if>
+      	<if test="zhino != null and zhino != ''" >
+			and sacbi.zhino  like  CONCAT("%",#{zhino},"%")
+      	</if>
+      	<if test="color != null and color != ''" >
+			and sacbi.color  like  CONCAT("%",#{color},"%")
+      	</if>
+      	<if test="issuedate != null and issuedate != ''" >
+			and sacbi.issuedate  like  CONCAT("%",#{issuedate},"%")
+      	</if>
+      	<if test="fullname != null and fullname != ''">
+      		<foreach item="item" index="index" collection="fullname">
+			and	CONCAT_WS(
+				c.shortname,
+				fullsubject,
+				shortsubject,
+				commonlysubject,
+				shortsubject,
+				facevaluedis,
+				issuedate,
+				version
+			) like  CONCAT("%",#{item},"%")
+      		</foreach>
+      	</if>
+		limit #{startRow},15
+</select>	
+  <select id="getStampStatementListByReqCode" resultType="com.ytgrading.bean.Statement" parameterType="java.lang.Integer">
+  	SELECT
+		r.requestcode,
+		rc.coincode,
+		rc.tagindex,
+		rc.remark,
+		rc.ratingreasondis,
+		co.shortname as coincountry,
+		rd.evaluate,
+		rd.numindex,
+		r.usercode,
+		r.customer,
+		r.mobile,
+		r.mail,
+		r.serviceid,
+		r.speed,
+		r.totalamount,
+		r.totalweight,
+		r.totalpreferential,
+		r.othercost,
+		r.totalevaluate,
+		r.totalreqcost,
+		r.totalpremium,
+		r.totaltransportation,
+		r.totalinsurance,
+		r.totalcost,
+		r.sendtype,
+		r.payment,
+		rc.score,
+		r.entitytype,
+		ExtractValue (
+			co.fullname,
+			"//value[@lang='zh_CN']"
+		) AS country,
+		ExtractValue (
+			p. NAME,
+			"//value[@lang='zh_CN']"
+		) AS province,
+		ExtractValue (
+			c.fullname,
+			"//value[@lang='zh_CN']"
+		) AS city,
+		ExtractValue (
+			d.fullname,
+			"//value[@lang='zh_CN']"
+		) AS area,
+		r.address,
+		r.paystatus,
+		rc.coinevaluate guestappraisal,
+		rd.totalreqcost AS totalcoincost,
+		rd.coinid,
+		num.gpn AS sameCoinNum
+	FROM
+		(
+			SELECT
+				rc1.coincode,
+				rc1.coinid AS cid,
+				count(*) AS gpn
+			FROM
+				request_coin rc1,
+				request_detail rd1,
+				request_main r1
+			WHERE
+				r1.requestcode = #{requestcode,jdbcType=INTEGER}
+			AND rc1.requestid = rd1.requestid
+			AND rc1.coinid = rd1.coinid
+			AND rc1.requestid = r1.id
+			GROUP BY
+				rc1.coinid
+		) num,
+		request_coin rc
+	LEFT JOIN request_detail rd ON rc.requestid = rd.requestid
+	AND rc.coinid = rd.coinid
+	LEFT JOIN request_main r ON rc.requestid = r.id
+	LEFT JOIN sys_country co ON r.country = co.id
+	LEFT JOIN sys_province p ON r.province = p.id
+	LEFT JOIN sys_city c ON r.city = c.id
+	LEFT JOIN sys_district d ON r.area = d.id
+	LEFT JOIN sys_stamp_basic_info sacbi ON rc.coinid = sacbi.id
+	WHERE
+		r.requestcode = #{requestcode,jdbcType=INTEGER}
+	AND num.cid = rd.coinid
+	ORDER BY
+		coincode ASC
+  </select>
+   <select id="getStampInfo" resultType="com.ytgrading.bean.CoinInfo">
+   		SELECT rc.id, rc.coincode,sc.shortname as guojia,sacbi.fullsubject,sacbi.facevaluedis,
+		rd.guestWRWeight as zhongliang,rd.guestWRSize as size,rd.version,rc.remark as coinremark,rd.guestWRGrade as grade,
+		rd.requestid,rcs.level,rc.score,rc.ratingreasondis,rc.coinnum
+		from request_coin rc  left join request_coin_score rcs on rcs.requestcoinid=rc.id, request_detail rd,
+   		sys_stamp_basic_info sacbi ,
+		sys_country sc,request_main r
+		where rd.id=rc.requestdetailid
+		AND sacbi.country=sc.id
+		AND rd.coinid=sacbi.id
+		AND r.id=rd.requestid
+		AND rc.id=#{requestcoinid,jdbcType=VARCHAR}
+		group by rc.coincode
+   </select>
+  <select id="getStampInfoByCode" resultType="com.ytgrading.bean.CoinInfo">
+ SELECT rc.id, rc.coincode,rd.requestid,ifnull(rc.coinspecialtype,sacbi.specialtype) as coinspecialtype,sacbi.wmk,sacbi.zhino,sc.shortname as guojia,ifnull(rc.customsize,sacbi.size) as size,
+ 		sacbi.issuetime,sacbi.issuedate,ifnull(rc.coinfullsubject,ifnull(sacbi.shortsubject,sacbi.fullsubject)) as coinfullsubject,ifnull(rc.coincover,sacbi.cover)as coincover,sacbi.facevaluedis,
+ 		ifnull(rc.coincovernewold,sacbi.covernewold) as coincovernewold,sacbi.color,ifnull(rc.coinpostmark,sacbi.postmark) as coinpostmark,
+ 		ifnull(rc.coinstampjointype,rd.stampjointype)as coinstampjointype,sacbi.version,
+		ifnull(rc.coinhole,sacbi.hole)as coinhole,ifnull(rc.coinplatemode,sacbi.platemode)as coinplatemode,ifnull(rc.coinseriesnum,sacbi.seriesnum)as coinseriesnum,
+		ifnull(rc.coinmotto,sacbi.motto)as coinmotto,sacbi.gum,ifnull(rc.coinissuingquantity,sacbi.issuingquantity)as coinissuingquantity,
+		ifnull(rc.coinsummary,sacbi.summary)as coinsummary,rc.remark,rc.ratingreasondis,rc.remark,rc.coinnum,
+		ifnull(rc.coinprintingpaper,sacbi.printingpaper)as coinprintingpaper,rc.coinfeatures,
+		(CASE WHEN r.serviceid = 1
+		THEN '新评' WHEN r.serviceid = 2 THEN '重评' WHEN r.serviceid = 5 THEN
+		'真品鉴定' END )
+		serviceid
+		from request_coin rc  left join request_coin_score rcs on rcs.requestcoinid=rc.id, request_detail rd,
+   		sys_stamp_basic_info sacbi,
+		sys_country sc,request_main r
+		where rd.id=rc.requestdetailid
+		AND sacbi.country=sc.id
+		AND rd.coinid=sacbi.id
+		AND r.id=rd.requestid
+		AND rc.coincode=#{coincode,jdbcType=VARCHAR}
+		ORDER BY rc.coincode
+  </select>
+    <select id="getPrintData" resultType="com.ytgrading.bean.CoinChart">
+		SELECT
+			c.zhino,
+			c.catalogue,
+			IFNULL(IFNULL(rc.coinfullsubject,c.shortsubject),c.fullsubject) as shortsubject,
+			c.version,
+			c.facevaluedis,
+			rc.customsize size,
+			rc.coinfeatures,
+			(
+				CASE c.country
+				WHEN c.country = '1' THEN
+					ExtractValue (
+						t.fullname,
+						"//value[@lang='zh_CN']"
+					)
+				ELSE
+					ExtractValue (
+						t.fullname,
+						"//value[@lang='en_US']"
+					)
+				END
+			) AS country,
+			rc.score,
+			rc.coincode,
+			rc.difversion,
+			rc.ratingreasondis
+		FROM
+			sys_stamp_basic_info c,
+			sys_country t,
+			request_coin rc,
+			request_detail rd
+		WHERE
+			rc.coincode LIKE CONCAT(#{requestCode}, '%')
+		AND rc.coinid = c.id
+		AND rc.requestdetailid = rd.id
+		AND t.id = c.country
+		ORDER BY
+			coincode
+  </select>
+  <select id="getStamp" parameterType="java.lang.String" resultType="com.ytgrading.bean.RequestCoinBean">
+	  SELECT
+			rc.id,
+			rc.coinid,
+			rc.coincode,
+			ifnull(rc.coinstampjointype,rd.stampjointype) as coinstampjointype,
+			ifnull(rc.coinfullsubject,sacbi.fullsubject) as coinfullsubject,
+			ifnull(rc.coincovernewold,sacbi.covernewold) as coincovernewold,
+			sacbi.facevaluedis,
+			sacbi.evaluate,
+			rc.customSize AS size,
+			rc.difversion,
+			rc.score,
+			rc.remark AS pubremark,
+			rc.ratingreasondis,
+			rc.coinremark,
+			rc.coinmotto,
+			rc.coinnum,
+			rc.coinboxid,
+			rc.coinevaluate,
+			rc.reqcost,
+			sacbi.zhino,
+			sacbi.color,
+			sacbi.issuedate,
+			sacbi.issuetime,
+			rd.amount
+		FROM
+			request_detail rd,
+			request_coin rc,
+			request_main r,
+			sys_stamp_basic_info sacbi
+		WHERE
+			(
+				r.id = #{requestid}
+				OR r.requestcode = #{requestid}
+			)
+		AND rc.requestdetailid = rd.id
+		AND r.id = rd.requestid
+		AND sacbi.id = rd.coinid
+		ORDER BY
+			rc.coincode
+  </select>
+ <select id="getSecondStampScores" parameterType="java.lang.String" resultType="com.ytgrading.bean.SearchScore">
+SELECT rc.id,rc.coincode,sacbi.zhino,sacbi.issuetime,ifnull(rc.coinfullsubject,sacbi.fullsubject)as coinfullsubject,
+	sacbi.facevaluedis,sacbi.color,ifnull(rc.coinstampjointype,rd.stampjointype) as coinstampjointype,
+	ifnull(rc.coincovernewold,sacbi.covernewold) as coincovernewold,rd.amount,rc.ratingreasondis,rc.coinremark,
+    ifnull(rc.customSize,sacbi.size)as size,rc.difversion,rc.coinnum,
+    rcs.score,rcs.scoreby,rcs.`level`,rcs.remark,rc.remark as pubremark,rcs.ratingreasondis
+		from request_coin rc LEFT JOIN request_coin_score rcs on rcs.requestcoinid=rc.id,
+		sys_stamp_basic_info sacbi ,
+	  request_detail rd
+		where rd.id=rc.requestdetailid
+		AND rd.coinid=sacbi.id
+		AND rc.requestid=#{requestid}
+		ORDER BY rc.coincode,rcs.level,rcs.scoreby
+ </select> 
+  <select id="getFirstStampScores" parameterType="java.lang.String" resultType="com.ytgrading.bean.SearchScore">
+  	SELECT rc.id,rc.coincode,sacbi.zhino,sacbi.issuetime,ifnull(rc.coinfullsubject,sacbi.fullsubject)as coinfullsubject,sacbi.facevaluedis,sacbi.color,
+  		ifnull(rc.coinstampjointype,rd.stampjointype) as coinstampjointype,ifnull(rc.coincovernewold,sacbi.covernewold) as coincovernewold,
+		rc.ratingreasondis,rc.coinremark,rc.coinnum,
+		rc.customSize as size,rc.difversion,
+		rcs.score,rcs.scoreby,rcs.`level`,rcs.remark,rc.remark as pubremark,rcs.ratingreasondis
+		FROM request_coin rc
+		LEFT JOIN request_coin_score rcs ON rcs.requestcoinid=rc.id AND rcs.scoreby=#{scoreby} AND rcs.`level`='1'
+		LEFT JOIN request_detail rd ON rd.id=rc.requestdetailid
+		LEFT JOIN request_main r ON r.id=rc.requestid
+		LEFT JOIN sys_stamp_basic_info sacbi ON sacbi.id=rc.coinid
+		LEFT JOIN sys_country sc ON sc.id=sacbi.country
+		WHERE rc.requestid=#{requestid}
+		ORDER BY rc.coincode
+  </select>
+</mapper>

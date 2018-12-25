@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.SuitMapper">
+
+	<select id="getCoin" parameterType="com.ytgrading.bean.Entityview" resultType="com.ytgrading.bean.Review">
+		SELECT
+			c.id,
+			c.evaluate,
+			c.catalogue,
+			c.shortsubject,
+			c.detinformation AS detinformation,
+			c.fullsubject AS fulltitle,
+			CONCAT_WS(
+				'',
+				c.shortsubject,
+				c.fullsubject,
+				c.enfullsubject,
+				c.enshortsubject,
+				c.commonlysubject,
+				c.facevaluedis,
+				c.sizedis,
+				c.weightshow
+			),
+			c.weightshow,
+			c.facevaluedis
+		FROM
+			sys_suit_basic_info c
+		WHERE
+			1 = 1
+		<if test="years != null and years != ''" >
+        and c.years=#{years}
+      	</if>
+      	<if test="country != null and country != ''" >
+		and c.country =#{country}
+      	</if>
+      	<if test="facevaluedis != null and facevaluedis != ''" >
+		and c.facevaluedis =#{facevaluedis}
+      	</if>
+      	<if test="fullsubject != null and fullsubject != ''" >
+		<!--and c.fullsubject LIKE CONCAT(CONCAT('%',#{fullsubject}),'%')  -->
+		<foreach item="item" index="index" collection="fullsubject">
+    	AND CONCAT_WS(
+			'',
+			c.years,
+			c.shortsubject,
+			c.fullsubject,
+			c.enfullsubject,
+			c.enshortsubject,
+			c.commonlysubject,
+			c.facevaluedis,
+			c.sizedis,
+			c.weightshow,
+			c.detinformation
+		) LIKE CONCAT(CONCAT('%',#{item}),'%')
+ 	 	 </foreach>
+      	</if>
+      	<if test="catalogue != null and catalogue != ''" >
+		and c.catalogue LIKE CONCAT(CONCAT(#{catalogue}),'%') 
+      	</if>
+      	<if test="weight != null and weight != ''" >
+		and c.weight =#{weight}
+      	</if>
+      	<if test="unitofmeasurement != null and unitofmeasurement != ''" >
+		and c.unitofmeasurement =#{unitofmeasurement}
+		</if>
+		<if test="mquality != null and mquality != ''" >
+		and c.mquality =#{mquality}
+		</if>
+		<if test="material != null and material != ''" >
+			<if test="material &lt; 7" >
+				and c.material=#{material}
+			</if>
+			<if test="material == 7" >
+				and c.material &gt;= 7
+				and c.material &lt; 17
+			</if>
+			<if test="material &gt;= 17" >
+				and c.material=#{material}
+			</if>
+		</if>
+		order by c.catalogue
+		limit #{startRow},15
+	</select>
+	
+	<select id="getStatementListByReqCode" resultType="com.ytgrading.bean.Statement" parameterType="java.lang.Integer">
+      SELECT r.entitytype,r.requestcode,rc.coincode,rc.tagindex,rc.remark,rc.ratingreasondis,co1.shortname as coincountry,
+      rd.evaluate,rd.numindex,r.usercode,r.customer,r.mobile,
+      r.mail,r.serviceid,r.speed,r.totalamount,r.totalweight,r.totalpreferential,r.othercost,
+      r.totalevaluate,r.totalreqcost,r.totalpremium,r.totaltransportation,
+      r.totalinsurance,r.totalcost,r.sendtype,r.payment, rc.score,rc.scores,
+	  ExtractValue(co.fullname, "//value[@lang='zh_CN']") as country,
+	  ExtractValue(p.name, "//value[@lang='zh_CN']") as province,
+	  ExtractValue(c.fullname, "//value[@lang='zh_CN']") as city,
+	  ExtractValue(d.fullname, "//value[@lang='zh_CN']") as area,
+	  r.address,r.paystatus,cd.amountofissue,rd.guestappraisal,rd.totalreqcost as totalcoincost,
+	  rd.coinid,num.gpn as sameCoinNum
+	  FROM (SELECT rc1.coincode,rc1.coinid as cid,count(*) as gpn FROM request_coin rc1 
+	  LEFT JOIN request_detail rd1 ON rc1.requestid = rd1.requestid AND rc1.coinid = rd1.coinid 
+	  LEFT JOIN request_main r1 ON rc1.requestid = r1.id 
+	  LEFT JOIN coin cd1 ON rc1.coinid = cd1.id 
+	  WHERE r1.requestcode = #{requestcode,jdbcType=INTEGER} group by rc1.coinid) num,request_coin rc 
+	  LEFT JOIN request_detail rd ON rc.requestid = rd.requestid AND rc.coinid = rd.coinid 
+	  LEFT JOIN request_main r ON rc.requestid = r.id 
+	  LEFT JOIN sys_country co ON r.country = co.id 
+	  LEFT JOIN sys_province p ON r.province = p.id 
+	  LEFT JOIN sys_city c ON r.city = c.id 
+	  LEFT JOIN sys_district d ON r.area = d.id 
+	  LEFT JOIN sys_suit_basic_info cd ON rc.coinid = cd.id 
+	  LEFT JOIN sys_country co1 on co1.id=cd.country
+	  WHERE r.requestcode = #{requestcode,jdbcType=INTEGER} 
+	  AND num.cid=rd.coinid
+	  ORDER BY coincode ASC
+  </select>
+  
+	<select id="selectDetail" resultType="com.ytgrading.bean.Review"
+		parameterType="java.lang.String">
+		select
+		d.id,d.numindex,d.totalreqcost,d.totalevaluate,d.amountofissue,d.amount,d.coinid,d.requestid,d.score,d.remark,c.years,c.shortsubject,
+		c.fullsubject as fulltitle,c.evaluate,d.evaluate guestappraisal,
+		c.version,c.facevalue,
+		(CASE WHEN t.id=1 THEN ExtractValue(m.fullname, "//value[@lang='zh_CN']") ELSE 
+		ExtractValue(m.fullname, "//value[@lang='zh_CN']") END)  as caizhi,
+		(CASE WHEN t.id=1 THEN ExtractValue(t.fullname, "//value[@lang='zh_CN']") ELSE 
+		ExtractValue(t.fullname, "//value[@lang='zh_CN']") END)  as guojia,
+		(CASE WHEN t.id=1 THEN ExtractValue(q.fullname, "//value[@lang='zh_CN']") ELSE 
+		ExtractValue(q.fullname, "//value[@lang='zh_CN']") END) as zhiliang,
+		CONCAT(c.weight,ExtractValue(s.fullname, "//value[@lang='zh_CN']")) as zhongliang,c.weight,
+		c.weightshow,facevaluedis,d.guestappraisal,sci.typename as cointypename,c.enfullsubject,c.detinformation
+		from request_detail d ,sys_suit_basic_info c ,sys_coin_material m
+		,sys_country t , sys_coin_mquality q ,sys_coin_munits s,sys_coin_issuecode sci
+		where d.coinid= c.id
+		and c.material = m.id
+		and c.mquality = q.id
+		and c.unitofmeasurement = s.id
+		and c.country = t.id
+		and c.issuecode=sci.id
+		and d.requestid =
+		#{id,jdbcType=VARCHAR} ORDER BY
+		d.numindex
+	</select>
+	
+	 <select id="selectCoin" parameterType="java.lang.String" resultType="com.ytgrading.bean.RequestCoinBean">
+      select r.coincode,c.years,
+		ExtractValue(t.fullname, "//value[@lang='zh_CN']") as guojia,
+		c.fullsubject,
+		CONCAT(c.weight,ExtractValue(s.fullname, "//value[@lang='zh_CN']")) as zhongliang,
+		ExtractValue(q.fullname, "//value[@lang='zh_CN']") as zhiliang,
+		ExtractValue(m.fullname, "//value[@lang='zh_CN']") as caizhi,
+		c.facevalue,
+		c.version,
+		c.facevaluedis,
+		c.weightshow,r.score,r.scores,r.difversion,r.ratingreasondis,c.detinformation,c.addremarks,r.addremarks as newinformation
+		from request_coin r ,sys_suit_basic_info c ,sys_coin_material m ,sys_country t , sys_coin_mquality q ,sys_coin_munits s
+		where r.coinid = c.id 
+		and c.material = m.id
+		and c.mquality = q.id
+		and c.unitofmeasurement = s.id
+		and c.country = t.id
+		and r.requestid = #{requestid}
+		order by r.coincode
+  </select>
+  
+  <select id="selectSecondScores" parameterType="java.lang.String" resultType="com.ytgrading.bean.SearchScore">
+  		select r.id,r.coincode,c.years,
+		ExtractValue(t.fullname, "//value[@lang='zh_CN']") as guojia,
+		c.fullsubject,
+		CONCAT(c.weight,ExtractValue(s.fullname, "//value[@lang='zh_CN']")) as zhongliang,
+		ExtractValue(q.fullname, "//value[@lang='zh_CN']") as zhiliang,
+		ExtractValue(m.fullname, "//value[@lang='zh_CN']") as caizhi,
+		c.facevalue,
+		c.version,
+		floor(o.score) as score,
+		o.scores,
+		o.`level`,
+		o.remark,
+		o.id as scoreid,
+		c.facevaluedis,
+		c.weightshow,
+		r.remark as pubremark,
+		r.difversion,
+		c.addremarks,
+		r.addremarks as newinformation,
+		o.ratingreasondis
+		from request_coin r LEFT JOIN request_coin_score o on r.id = o.requestcoinid ,sys_suit_basic_info c ,sys_coin_material m ,sys_country t , sys_coin_mquality q ,sys_coin_munits s
+		where r.coinid = c.id 
+		and c.material = m.id
+		and c.mquality = q.id
+		and c.unitofmeasurement = s.id
+		and c.country = t.id
+		and r.requestid = #{requestid}
+		order by r.coincode,o.level,o.scoreby
+  </select>
+  
+  <select id="selectSearchScores" parameterType="java.lang.String" resultType="com.ytgrading.bean.SearchScore">
+  		select r.id,r.coincode,c.years,
+		ExtractValue(t.fullname, "//value[@lang='zh_CN']") as guojia,
+		c.fullsubject,
+		CONCAT(c.weight,ExtractValue(s.fullname, "//value[@lang='zh_CN']")) as zhongliang,
+		ExtractValue(q.fullname, "//value[@lang='zh_CN']") as zhiliang,
+		ExtractValue(m.fullname, "//value[@lang='zh_CN']") as caizhi,
+		c.facevalue,
+		c.version,
+		r.customerscore,
+		o.score,
+		o.scores,
+		o.id as scoreid ,
+		o.`level`,
+		o.remark,
+		c.facevaluedis,
+		c.weightshow,
+		r.remark as pubremark,	
+		r.difversion,
+		c.addremarks,
+		r.addremarks as newinformation,
+		o.ratingreasondis
+		from request_coin r left join request_coin_score o on  r.id = o.requestcoinid and o.scoreby = #{scoreby} AND `level`='1',sys_suit_basic_info c ,sys_coin_material m ,sys_country t , sys_coin_mquality q ,sys_coin_munits s
+		where r.coinid = c.id 
+		and c.material = m.id
+		and c.mquality = q.id
+		and c.unitofmeasurement = s.id
+		and c.country = t.id
+		and r.requestid = #{requestid}
+		order by r.coincode
+  </select>
+  
+  <select id="getPrintData" resultType="com.ytgrading.bean.CoinChart">
+	 SELECT c.years,c.catalogue,c.shortsubject,c.enshortsubject,c.version,c.facevaluedis,c.weightshow,c.size,
+		   case c.country when c.country='1' then
+				ExtractValue(t.fullname, "//value[@lang='zh_CN']")
+		   else
+		      ExtractValue(t.fullname, "//value[@lang='en_US']")
+		   end as country, 
+		   case c.country when c.country='1' then
+				ExtractValue(q.fullname, "//value[@lang='zh_CN']")
+		   else
+		       ExtractValue(q.fullname, "//value[@lang='en_US']")
+		   end as mquality,
+		   case c.country when c.country='1' then
+				ExtractValue(m.fullname, "//value[@lang='zh_CN']")
+		   else
+		      ExtractValue(m.fullname, "//value[@lang='en_US']")
+		   end as material, 
+			c.issuecode,
+			rc.score,rc.coincode,rc.difversion,rc.ratingreasondis
+		FROM sys_suit_basic_info c, sys_coin_mquality q ,sys_coin_material m ,sys_country t,request_coin rc
+		WHERE rc.coincode LIKE CONCAT(#{requestCode},'%')
+			AND rc.coinid = c.id
+			AND q.id = c.mquality
+			AND m.id = c.material
+			AND t.id = c.country
+			<if test="country=='cn'">
+				AND	c.country='1'
+			</if>
+			<if test="country=='un'">
+				AND	c.country!='1'
+			</if>
+			order by coincode
+	</select>
+	
+	<select id="getCoinInfoListByCode" resultType="com.ytgrading.bean.CoinInfo" parameterType="java.lang.String">
+		SELECT rc.id,rc.coinid,rc.coincode,rc.remark as coinremark ,rc.requestid,rcs.level ,rcs.score,rcs.scores,rcs.remark as scoreremark,rcs.scoreby,rcs.ratingreasondis,
+		i.guojia,i.years ,i.evaluate,i.amountofissue,i.mprocess,i.fullsubject,i.zhongliang,i.zhiliang,i.caizhi,i.version,i.facevalue,i.components,i.detinformation,i.addremarks,rc.addremarks as newinformation,
+		rc.difversion,rcs.scoretime,(CASE WHEN re.serviceid = 1 THEN '新评' WHEN re.serviceid = 2 THEN '重评' WHEN re.serviceid = 5 THEN
+				'真品鉴定' END ) serviceid
+		FROM request_coin rc LEFT JOIN request_coin_score rcs ON rc.id = rcs.requestcoinid 
+		LEFT JOIN 
+		(select c.years,c.id,c.evaluate,c.amountofissue,c.detinformation,c.addremarks,
+				ExtractValue(mp.fullname, "//value[@lang='zh_CN']") as mprocess,
+				ExtractValue(t.fullname, "//value[@lang='zh_CN']") as guojia,
+				c.fullsubject,
+				CONCAT(c.weight,ExtractValue(s.fullname, "//value[@lang='zh_CN']")) as zhongliang,
+				ExtractValue(q.fullname, "//value[@lang='zh_CN']") as zhiliang,
+				ExtractValue(m.fullname, "//value[@lang='zh_CN']") as caizhi,
+				version,facevalue, components from sys_suit_basic_info c,sys_coin_munits s , sys_coin_mquality q ,sys_coin_mprocess mp,
+				sys_coin_material m ,sys_country t
+				where s.id = c.unitofmeasurement
+				and q.id = c.mquality
+				and m.id = c.material
+				and t.id = c.country
+				and mp.id = c.mprocess
+		)i
+		ON rc.coinid = i.id,request_main re
+		WHERE rc.coincode = #{coincode,jdbcType=VARCHAR} and rc.requestid=re.id
+	 	ORDER BY rcs.level,rcs.scoreby
+  </select>
+  
+  <select id="getChartCoins" resultType="com.ytgrading.bean.CoinChart">
+	    SELECT c.years,c.catalogue,c.shortsubject,c.version,c.facevaluedis,
+			ExtractValue(t.fullname, "//value[@lang='zh_CN']") as country,
+			ExtractValue(q.fullname, "//value[@lang='zh_CN']") as mquality,
+			ExtractValue(m.fullname, "//value[@lang='zh_CN']") as material,
+			c.issuecode,
+			rc.score,rc.coincode,rc.difversion,rc.ratingreasondis
+		FROM sys_suit_basic_info c, sys_coin_mquality q ,sys_coin_material m ,sys_country t,request_coin rc
+		WHERE rc.coincode LIKE CONCAT(#{requestCode},'%')
+			AND rc.coinid = c.id
+			AND q.id = c.mquality
+			AND m.id = c.material
+			AND t.id = c.country order by coincode
+  	</select>
+</mapper>

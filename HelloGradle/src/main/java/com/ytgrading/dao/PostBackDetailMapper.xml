@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.PostBackDetailMapper" >
+    <select id="getByRequestcode" resultType="com.ytgrading.dto.RequestLogistics"   parameterType="java.lang.String" >
+			SELECT rls.id,rls.requestcode,rls.company,rls.logisticsno,
+			rls.packlength,rls.packwidth,rls.packheight,
+			rls.createby,rls.remark ,rls.createtime
+			from request_logistics rls
+			where 1=1
+			<if test="requestcode!=null and requestcode!='' ">
+			 AND rls.requestcode=#{requestcode,jdbcType=VARCHAR}
+			</if>
+  </select>
+</mapper>

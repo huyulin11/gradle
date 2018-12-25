@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.HandOverMapper">
+	<select id="SearchCheckAllHandover" resultType="com.ytgrading.bean.TransferGoods">
+		SELECT
+		t.goodstype,
+		t.goodsno,
+		r.usercode,
+		t.ownid,
+		t.requeststatus,
+		t.goodsstatus,
+		e.name AS ownname,
+		t.sendtype,
+		t.handlingtime,
+		t.paydiffertime,
+		t.payinfo,
+		<if test="processNum!=1 and processNum!=2">
+		t.duetime,
+		</if>
+		t.coinnum
+		FROM
+		(
+		(SELECT
+		'包裹' AS goodstype,
+		packno AS goodsno,
+		ownid AS ownid,
+		'-1' AS requeststatus,
+		cutstatus AS goodsstatus,
+		'' AS sendtype,
+		createtime AS handlingtime,
+		<if test="processNum!=1 and processNum!=2">
+		'' duetime,
+		</if>
+		'' paydiffertime,
+		'' payinfo,
+		'' coinnum
+		FROM
+		logistics_pack
+		WHERE cutstatus = '0'
+		AND receivestatus = '0'
+		<if test="processNum!=2">
+			AND ownid = '--'
+		</if>
+		)
+		UNION
+		ALL
+		(SELECT
+		'申请单' AS goodstype,
+		rr.requestcode AS goodsno,
+		rr.ownid AS ownid,
+		rr.requeststatus AS requeststatus,
+		rr.internalstates AS goodsstatus,
+		rr.sendtype AS sendtype,
+		rr.requesttime AS handlingtime,
+		<if test="processNum!=1 and processNum!=2">
+		rr.duetime AS duetime,
+		</if>
+		TIME_TO_SEC(
+		TIMEDIFF(
+		(SELECT
+		DATE_FORMAT(
+		MAX(p.createdate),
+		'%Y-%m-%d %H:%i:%S'
+		)
+		FROM
+		pay_journal p
+		WHERE FIND_IN_SET(p.requestcode, rr.requestcode)),
+		rr.duetime
+		)
+		) * (- 1) AS paydiffertime,
+		(
+		CASE
+		WHEN rr.paystatus = '1'
+		THEN IFNULL(
+		(SELECT
+		DATE_FORMAT(
+		MAX(p.createdate),
+		'%Y-%m-%d %H:%i:%S'
+		)
+		FROM
+		pay_journal p
+		WHERE FIND_IN_SET(p.requestcode, rr.requestcode)),
+		"已支付"
+		)
+		ELSE "--"
+		END
+		) payinfo,
+		rr.totalamount coinnum
+		FROM
+		request_main rr
+		WHERE 1=1
+		<if test="processNum==1">
+			AND rr.requeststatus = '6' 
+		    AND rr.sendtype = '2'
+		</if>
+		<if test="processNum==2">
+			AND rr.internalstates = '1' 
+     		OR rr.internalstates = '2' 
+      		OR rr.internalstates = '3' 
+		</if>
+		<if test="internalstates>0 ">
+			AND rr.internalstates = #{internalstates,jdbcType=CHAR}
+		</if>
+		<if test="internalstates==-1">
+			AND rr.internalstates = 3
+			OR rr.internalstates = 4
+		</if>
+		<if test="internalstates==-2">
+			AND rr.internalstates = 5
+			OR rr.internalstates = 6
+		</if>
+		<if test="internalstates==-3">
+			AND rr.internalstates = 7
+			OR rr.internalstates = 8
+		</if>
+		<if test="internalstates==-4">
+			AND rr.internalstates = 9
+			OR rr.internalstates = 10
+			OR rr.internalstates = 11
+		</if>
+		<if test="internalstates==-5">
+			AND rr.internalstates = 13
+			OR rr.internalstates = 14
+		</if>
+		AND delflag = '0')
+		)t
+		LEFT JOIN employee e ON t.ownid = e.id
+		LEFT JOIN request_main r ON r.requestcode=goodsno
+		where 1=1
+		<if test="usercode!=null and usercode!=''">
+			and r.usercode = #{usercode,jdbcType=VARCHAR}
+		</if>
+		<if test="goodno!=null and goodno!=''">
+			and t.goodsno = #{goodno,jdbcType=INTEGER}
+		</if>
+		<if test="entityType!=0 and entityType!=-1 and entityType!=-2">
+			and r.entitytype=#{entityType,jdbcType=VARCHAR}
+		</if>
+		<if test="entityType==0">
+			and r.entitytype is null
+		</if>
+		<if test="entityType==-1">
+			and r.entitytype is not null
+		</if>
+		ORDER BY t.handlingtime ASC
+		limit #{page,jdbcType=INTEGER} , #{pageSize,jdbcType=INTEGER}
+	</select>
+	<select id="SearchCheckAllHandoverCount" resultType="com.ytgrading.bean.TransferGoods">
+		SELECT
+		count(*) as requestnum,sum(t.coinnum) as coinnum
+		FROM
+		(
+		(SELECT
+		'包裹' AS goodstype,
+		packno AS goodsno,
+		ownid AS ownid,
+		'-1' AS requeststatus,
+		cutstatus AS goodsstatus,
+		'' AS sendtype,
+		createtime AS handlingtime,
+		'' paydiffertime,
+		'' payinfo,
+		'' coinnum
+		FROM
+		logistics_pack
+		WHERE cutstatus = '0'
+		AND receivestatus = '0'
+		<if test="processNum!=2">
+			AND ownid = '--'
+		</if>
+		)
+		UNION
+		ALL
+		(SELECT
+		'申请单' AS goodstype,
+		rr.requestcode AS goodsno,
+		rr.ownid AS ownid,
+		rr.requeststatus AS requeststatus,
+		rr.internalstates AS goodsstatus,
+		rr.sendtype AS sendtype,
+		rr.requesttime AS handlingtime,
+		TIME_TO_SEC(
+		TIMEDIFF(
+		(SELECT
+		DATE_FORMAT(
+		MAX(p.createdate),
+		'%Y-%m-%d %H:%i:%S'
+		)
+		FROM
+		pay_journal p
+		WHERE FIND_IN_SET(p.requestcode, rr.requestcode)),
+		rr.duetime
+		)
+		) * (- 1) AS paydiffertime,
+		(
+		CASE
+		WHEN rr.paystatus = '1'
+		THEN IFNULL(
+		(SELECT
+		DATE_FORMAT(
+		MAX(p.createdate),
+		'%Y-%m-%d %H:%i:%S'
+		)
+		FROM
+		pay_journal p
+		WHERE FIND_IN_SET(p.requestcode, rr.requestcode)),
+		"已支付"
+		)
+		ELSE "--"
+		END
+		) payinfo,
+		rr.totalamount coinnum
+		FROM
+		request_main rr
+		WHERE 1=1
+		<if test="processNum==1">
+			AND rr.requeststatus = '6' 
+		    AND rr.sendtype = '2'
+		</if>
+		<if test="processNum==2">
+			AND rr.internalstates = '1' 
+     		OR rr.internalstates = '2' 
+      		OR rr.internalstates = '3' 
+		</if>
+		<if test="internalstates>0 ">
+			AND rr.internalstates = #{internalstates,jdbcType=CHAR}
+		</if>
+		<if test="internalstates==-1">
+			AND rr.internalstates = 3
+			OR rr.internalstates = 4
+		</if>
+		<if test="internalstates==-2">
+			AND rr.internalstates = 5
+			OR rr.internalstates = 6
+		</if>
+		<if test="internalstates==-3">
+			AND rr.internalstates = 7
+			OR rr.internalstates = 8
+		</if>
+		<if test="internalstates==-4">
+			AND rr.internalstates = 9
+			OR rr.internalstates = 10
+			OR rr.internalstates = 11
+		</if>
+		<if test="internalstates==-5">
+			AND rr.internalstates = 13
+			OR rr.internalstates = 14
+		</if>
+		AND delflag = '0')
+		)t
+		LEFT JOIN employee e ON t.ownid = e.id
+		LEFT JOIN request_main r ON r.requestcode=goodsno
+		where 1=1
+		<if test="goodno!=null and goodno!=''">
+			AND t.goodsno = #{goodno,jdbcType=INTEGER}
+		</if>
+		<if test="usercode!=null and usercode!=''">
+			AND r.usercode = #{usercode,jdbcType=VARCHAR}
+		</if>
+		<if test="entityType!=0 and entityType!=-1 and entityType!=-2">
+			and r.entitytype=#{entityType,jdbcType=VARCHAR}
+		</if>
+		<if test="entityType==0">
+			and r.entitytype is null
+		</if>
+		<if test="entityType==-1">
+			and r.entitytype is not null
+		</if>
+	</select>
+</mapper>

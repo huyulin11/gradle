@@ -1,0 +1,1559 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.AloneMapper">
+	<resultMap id="UserMap" type="com.ytgrading.dto.Users">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="usercode" property="usercode" jdbcType="INTEGER" />
+		<result column="registerdate" property="registerdate" jdbcType="TIMESTAMP" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="birthday" property="birthday" jdbcType="VARCHAR" />
+		<result column="documenttype" property="documenttype" jdbcType="CHAR" />
+		<result column="documentcode" property="documentcode" jdbcType="VARCHAR" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+		<result column="rate" property="rate" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="delflag" property="delflag" jdbcType="CHAR" />
+		<result column="defaultmail" property="defaultmail" jdbcType="VARCHAR" />
+		<result column="defaulttel" property="defaulttel" jdbcType="VARCHAR" />
+		<result column="defaultmobile" property="defaultmobile"
+			jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="User_Column_List">
+		id, usercode, registerdate, title, remark, birthday, documenttype,
+		documentcode,
+		password, rate, name, delflag, defaultmail, defaulttel,
+		defaultmobile
+	</sql>
+	<select id="getUser" resultMap="UserMap" parameterType="java.lang.String">
+		select
+		<include refid="User_Column_List" />
+		from user where id=#{id,jdbcType=VARCHAR}
+	</select>
+		<select id="geLasttUser" resultMap="UserMap" parameterType="java.lang.String">
+		select
+		<include refid="User_Column_List" />
+		from user where usercode LIKE CONCAT(#{prepixUsercode},'%') 
+		order by usercode desc limit 0,1
+	</select>
+	<insert id="insertuser" parameterType="com.ytgrading.dto.Users">
+		insert into user
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="usercode != null">
+				usercode,
+			</if>
+			<if test="registerdate != null">
+				registerdate,
+			</if>
+			<if test="title != null">
+				title,
+			</if>
+			<if test="remark != null">
+				remark,
+			</if>
+			<if test="birthday != null">
+				birthday,
+			</if>
+			<if test="documenttype != null">
+				documenttype,
+			</if>
+			<if test="documentcode != null">
+				documentcode,
+			</if>
+			<if test="password != null">
+				password,
+			</if>
+			<if test="rate != null">
+				rate,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="delflag != null">
+				delflag,
+			</if>
+			<if test="defaultmail != null">
+				defaultmail,
+			</if>
+			<if test="defaulttel != null">
+				defaulttel,
+			</if>
+			<if test="defaultmobile != null">
+				defaultmobile,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="usercode != null">
+				#{usercode,jdbcType=INTEGER},
+			</if>
+			<if test="registerdate != null">
+				#{registerdate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="title != null">
+				#{title,jdbcType=VARCHAR},
+			</if>
+			<if test="remark != null">
+				#{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="birthday != null">
+				#{birthday,jdbcType=VARCHAR},
+			</if>
+			<if test="documenttype != null">
+				#{documenttype,jdbcType=CHAR},
+			</if>
+			<if test="documentcode != null">
+				#{documentcode,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				#{password,jdbcType=VARCHAR},
+			</if>
+			<if test="rate != null">
+				#{rate,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="delflag != null">
+				#{delflag,jdbcType=CHAR},
+			</if>
+			<if test="defaultmail != null">
+				#{defaultmail,jdbcType=VARCHAR},
+			</if>
+			<if test="defaulttel != null">
+				#{defaulttel,jdbcType=VARCHAR},
+			</if>
+			<if test="defaultmobile != null">
+				#{defaultmobile,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<resultMap id="User_loginMap" type="com.ytgrading.dto.UserLogin">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="loginname" property="loginname" jdbcType="VARCHAR" />
+		<result column="activatedate" property="activatedate" jdbcType="TIMESTAMP" />
+		<result column="lastlogindate" property="lastlogindate"
+			jdbcType="TIMESTAMP" />
+		<result column="lastloginip" property="lastloginip" jdbcType="INTEGER" />
+		<result column="userid" property="userid" jdbcType="VARCHAR" />
+		<result column="failures" property="failures" jdbcType="INTEGER" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+	</resultMap>
+	<insert id="insertuser_login" parameterType="com.ytgrading.dto.UserLogin">
+		insert into user_login
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="loginname != null">
+				loginname,
+			</if>
+			<if test="activatedate != null">
+				activatedate,
+			</if>
+			<if test="lastlogindate != null">
+				lastlogindate,
+			</if>
+			<if test="lastloginip != null">
+				lastloginip,
+			</if>
+			<if test="userid != null">
+				userid,
+			</if>
+			<if test="failures != null">
+				failures,
+			</if>
+			<if test="password != null">
+				password,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="loginname != null">
+				#{loginname,jdbcType=VARCHAR},
+			</if>
+			<if test="activatedate != null">
+				#{activatedate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="lastlogindate != null">
+				#{lastlogindate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="lastloginip != null">
+				#{lastloginip,jdbcType=INTEGER},
+			</if>
+			<if test="userid != null">
+				#{userid,jdbcType=VARCHAR},
+			</if>
+			<if test="failures != null">
+				#{failures,jdbcType=INTEGER},
+			</if>
+			<if test="password != null">
+				#{password,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<select id="sendmsgnum" resultType="java.lang.Integer" parameterType="java.lang.String">
+		select count(*) from user_validity 
+		where 1 =INSTR(starttime,#{starttime,jdbcType=TIMESTAMP})
+		and loginname = #{loginname,jdbcType=VARCHAR}
+		and type = #{type,jdbcType=CHAR}
+	</select>
+	<insert id="insertFastEmail" parameterType="com.ytgrading.dto.UserMail">
+		insert into user_mail
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="mail != null">
+				mail,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="isdefault != null">
+				isdefault,
+			</if>
+			<if test="userid != null">
+				userid,
+			</if>
+			<if test="delflag != null">
+				delflag,
+			</if>
+			<if test="isremove != null">
+				isremove
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="mail != null">
+				#{mail,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=CHAR},
+			</if>
+			<if test="isdefault != null">
+				#{isdefault,jdbcType=CHAR},
+			</if>
+			<if test="userid != null">
+				#{userid,jdbcType=VARCHAR},
+			</if>
+			<if test="delflag != null">
+				#{delflag,jdbcType=CHAR},
+			</if>
+			<if test="isremove != null">
+				#{isremove,jdbcType=CHAR},
+			</if>
+		</trim>
+	</insert>
+	<select id="selectUser" resultMap="User_loginMap"
+		parameterType="com.ytgrading.dto.UserLoginExample">
+		select * from user_login where loginname = #{str,jdbcType=VARCHAR}
+	</select>
+	<select id="getUserLogin" resultMap="User_loginMap"
+		parameterType="com.ytgrading.dto.UserLoginExample">
+		select * from user_login where userid = #{userid,jdbcType=VARCHAR}
+	</select>
+	<select id="checkemailaddress" resultMap="User_loginMap"
+		parameterType="com.ytgrading.dto.UserLoginExample">
+		select * from user_login where loginname = #{loginname,jdbcType=VARCHAR} and id=#{id,jdbcType=VARCHAR}
+	</select>
+		<select id="selectUserLogin" resultMap="User_loginMap"
+		parameterType="com.ytgrading.dto.UserLoginExample">
+		select * from user_login where id = #{str,jdbcType=VARCHAR}
+	</select>
+	<update id="updateByFailures" parameterType="com.ytgrading.dto.UserLogin">
+		update user_login SET failures=failures+1 where loginname=
+		#{str,jdbcType=VARCHAR}
+	</update>
+	<update id="updateByFailuresSucc" parameterType="com.ytgrading.dto.UserLogin">
+		update user_login SET failures=0 where loginname=
+		#{str,jdbcType=VARCHAR}
+	</update>
+	<select id="checkUsername" parameterType="com.ytgrading.dto.UserLoginExample"
+		resultType="java.lang.Integer">
+		select count(*) from user_login where loginname =
+		#{str,jdbcType=VARCHAR}
+	</select>
+	<update id="updatepassword" parameterType="com.ytgrading.dto.UserLogin">
+		update user_login
+		<set>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where userid = #{userid,jdbcType=VARCHAR}
+	</update>
+	<update id="updateUserpassword" parameterType="com.ytgrading.dto.Users">
+		update user
+		<set>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+	<resultMap id="UserValidityMap" type="com.ytgrading.dto.UserValidity">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="loginname" property="loginname" jdbcType="VARCHAR" />
+		<result column="starttime" property="starttime" jdbcType="TIMESTAMP" />
+		<result column="verificationcode" property="verificationcode"
+			jdbcType="VARCHAR" />
+		<result column="type" property="type" jdbcType="CHAR" />
+		<result column="struts" property="struts" jdbcType="CHAR" />
+	</resultMap>
+	<sql id="UserValidity_Column_List">
+		id, loginname, starttime, verificationcode, type,struts
+	</sql>
+	<update id="updateUserValidity" parameterType="java.lang.String">
+		update user_validity set struts='1' where id = #{id,jdbcType=VARCHAR}
+  	</update>
+  	<update id="updateUserValidityStruts" parameterType="java.lang.String">
+		update user_validity set struts='2' where id = #{id,jdbcType=VARCHAR}
+  	</update>
+	<insert id="insertUserValidity" parameterType="com.ytgrading.dto.UserValidity">
+		insert into user_validity
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="loginname != null">
+				loginname,
+			</if>
+			<if test="starttime != null">
+				starttime,
+			</if>
+			<if test="verificationcode != null">
+				verificationcode,
+			</if>
+			<if test="type != null">
+				type,
+			</if>
+			<if test="struts != null">
+				struts,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="loginname != null">
+				#{loginname,jdbcType=VARCHAR},
+			</if>
+			<if test="starttime != null">
+				#{starttime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="verificationcode != null">
+				#{verificationcode,jdbcType=VARCHAR},
+			</if>
+			<if test="type != null">
+				#{type,jdbcType=CHAR},
+			</if>
+			<if test="struts != null">
+				#{struts,jdbcType=CHAR},
+			</if>
+		</trim>
+	</insert>
+	<select id="selectByInfo" resultMap="UserValidityMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="UserValidity_Column_List" />
+		from user_validity
+		where loginname = #{name,jdbcType=VARCHAR}
+		and
+		id = #{id,jdbcType=VARCHAR}
+	</select>
+	<select id="selectInfo" resultMap="UserValidityMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="UserValidity_Column_List" />
+		from user_validity
+		where id = #{uuid,jdbcType=VARCHAR}
+	</select>
+	<select id="selectUserValidity" resultMap="UserValidityMap" parameterType="com.ytgrading.dto.UserValidityExample" >
+	    select
+	    <include refid="UserValidity_Column_List" />
+	    from user_validity 
+	  	where struts=#{struts,jdbcType=CHAR} AND loginname = #{loginname,jdbcType=VARCHAR}
+   </select>
+	<select id="selectByCode" resultMap="UserValidityMap" parameterType="java.lang.String">
+		SELECT
+		<include refid="UserValidity_Column_List" />
+		FROM user_validity
+		WHERE loginname = #{name,jdbcType=VARCHAR}
+		AND
+		starttime=
+		(SELECT MAX(starttime)
+		FROM user_validity
+		WHERE
+		loginname =
+		#{name,jdbcType=VARCHAR})
+	</select>
+	<sql id="Wallet_Column_List">
+		id, userid, balance, password, status, activatedate, delflag
+	</sql>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		delete from user_validity
+		where id = #{id,jdbcType=VARCHAR}
+	</delete>
+	<insert id="insertWallet_refund" parameterType="com.ytgrading.dto.WalletRefund">
+		insert into wallet_refund
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="refundno != null">
+				refundno,
+			</if>
+			<if test="refunddate != null">
+				refunddate,
+			</if>
+			<if test="amount != null">
+				amount,
+			</if>
+			<if test="type != null">
+				type,
+			</if>
+			<if test="walletid != null">
+				walletid,
+			</if>
+			<if test="remark != null">
+				remark,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="confirmdate != null">
+				confirmdate,
+			</if>
+			<if test="confirmuserid != null">
+				confirmuserid,
+			</if>
+			<if test="delflag != null">
+				delflag,
+			</if>
+			<if test="userid != null">
+				userid,
+			</if>
+			<if test="capitalid != null">
+				capitalid,
+			</if>
+			<if test="orderdate != null">
+				orderdate,
+			</if>
+			<if test="capitalvalue != null">
+				capitalvalue,
+			</if>
+			<if test="mtype != null">
+				mtype,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="refundno != null">
+				#{refundno,jdbcType=INTEGER},
+			</if>
+			<if test="refunddate != null">
+				#{refunddate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="amount != null">
+				#{amount,jdbcType=DECIMAL},
+			</if>
+			<if test="type != null">
+				#{type,jdbcType=CHAR},
+			</if>
+			<if test="walletid != null">
+				#{walletid,jdbcType=VARCHAR},
+			</if>
+			<if test="remark != null">
+				#{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=CHAR},
+			</if>
+			<if test="confirmdate != null">
+				#{confirmdate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="confirmuserid != null">
+				#{confirmuserid,jdbcType=VARCHAR},
+			</if>
+			<if test="delflag != null">
+				#{delflag,jdbcType=CHAR},
+			</if>
+			<if test="userid != null">
+				#{userid,jdbcType=VARCHAR},
+			</if>
+			<if test="capitalid != null">
+				#{capitalid,jdbcType=VARCHAR},
+			</if>
+			<if test="orderdate != null">
+				#{orderdate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="capitalvalue != null">
+				#{capitalvalue,jdbcType=VARCHAR},
+			</if>
+			<if test="mtype !=null">
+				#{mtype,jdbcType=INTEGER}
+			</if>
+		</trim>
+	</insert>
+	<insert id="insertWallet_remit" parameterType="com.ytgrading.dto.WalletRemit">
+		insert into wallet_remit
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="remitno != null">
+				remitno,
+			</if>
+			<if test="type != null">
+				type,
+			</if>
+			<if test="userid != null">
+				userid,
+			</if>
+			<if test="amount != null">
+				amount,
+			</if>
+			<if test="unit != null">
+				unit,
+			</if>
+			<if test="remitdate != null">
+				remitdate,
+			</if>
+			<if test="remitname != null">
+				remitname,
+			</if>
+			<if test="remitfrom != null">
+				remitfrom,
+			</if>
+			<if test="remitcode != null">
+				remitcode,
+			</if>
+			<if test="remark != null">
+				remark,
+			</if>
+			<if test="submitdate != null">
+				submitdate,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="confirmdate != null">
+				confirmdate,
+			</if>
+			<if test="confirmuserid != null">
+				confirmuserid,
+			</if>
+			<if test="confirmamount != null">
+				confirmamount,
+			</if>
+			<if test="delflag != null">
+				delflag,
+			</if>
+			<if test="openbank != null">
+				openbank,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="remitno != null">
+				#{remitno,jdbcType=INTEGER},
+			</if>
+			<if test="type != null">
+				#{type,jdbcType=CHAR},
+			</if>
+			<if test="userid != null">
+				#{userid,jdbcType=VARCHAR},
+			</if>
+			<if test="amount != null">
+				#{amount,jdbcType=DECIMAL},
+			</if>
+			<if test="unit != null">
+				#{unit,jdbcType=CHAR},
+			</if>
+			<if test="remitdate != null">
+				#{remitdate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="remitname != null">
+				#{remitname,jdbcType=VARCHAR},
+			</if>
+			<if test="remitfrom != null">
+				#{remitfrom,jdbcType=VARCHAR},
+			</if>
+			<if test="remitcode != null">
+				#{remitcode,jdbcType=VARCHAR},
+			</if>
+			<if test="remark != null">
+				#{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="submitdate != null">
+				#{submitdate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=CHAR},
+			</if>
+			<if test="confirmdate != null">
+				#{confirmdate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="confirmuserid != null">
+				#{confirmuserid,jdbcType=VARCHAR},
+			</if>
+			<if test="confirmamount != null">
+				#{confirmamount,jdbcType=DECIMAL},
+			</if>
+			<if test="delflag != null">
+				#{delflag,jdbcType=CHAR},
+			</if>
+			<if test="openbank != null">
+				#{openbank,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<resultMap id="PayRequestReceiveMap" type="com.ytgrading.dto.PayRequestReceive">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="requestid" property="requestid" jdbcType="VARCHAR" />
+		<result column="type" property="type" jdbcType="CHAR" />
+		<result column="amount" property="amount" jdbcType="DECIMAL" />
+		<result column="createby" property="createby" jdbcType="VARCHAR" />
+		<result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+		<result column="status" property="status" jdbcType="CHAR" />
+	</resultMap>
+	<sql id="PayRequestReceive_Column_List">
+		id, remark, requestid, type, amount, createby, createtime, status
+	</sql>
+
+	<select id="selectAmount" resultMap="PayRequestReceiveMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="PayRequestReceive_Column_List" />
+		from pay_request_receive where requestid in
+		<foreach item="item" index="index" collection="id" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+	<update id="updateReceive" parameterType="map">
+		update pay_request_receive set status=1 where
+		requestid in
+		<foreach item="item" index="index" collection="id" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</update>
+	
+	<sql id="Request_Column_List">
+		id, requestcode, packagecode, usercode, userid, boxcode, customer,
+		mobile, tel, fax,
+		mail, serviceid, speed, speedext, wapper, sendtype,
+		sendmethod, receiver,
+		receivertel,
+		receivermobile, receivermail,
+		country, province, city, area, address, payment,
+		remark,
+		totalpremium,
+		totaltransportation, totalinsurance, totalreqcost, totalcost,
+		totalpreferential,totalweight,
+		totalamount, totalevaluate, zip, requesttime,
+		requeststatus, updatetime, delflag,
+		internalstates, imgpath, ownid,
+		deliveryno, paystatus, confirmstatus,
+		notice,applytime,applytype,othercost,
+		costremark,usedeals,agreement,	
+		usercardtype,usercardcode,addedcoinremark,entitytype,isproxy
+	</sql>
+	<resultMap id="RequestMap" type="com.ytgrading.dto.Request">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="requestcode" property="requestcode" jdbcType="INTEGER" />
+		<result column="packagecode" property="packagecode" jdbcType="VARCHAR" />
+		<result column="usercode" property="usercode" jdbcType="INTEGER" />
+		<result column="userid" property="userid" jdbcType="VARCHAR" />
+		<result column="boxcode" property="boxcode" jdbcType="VARCHAR" />
+		<result column="customer" property="customer" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="tel" property="tel" jdbcType="VARCHAR" />
+		<result column="fax" property="fax" jdbcType="VARCHAR" />
+		<result column="mail" property="mail" jdbcType="VARCHAR" />
+		<result column="serviceid" property="serviceid" jdbcType="CHAR" />
+		<result column="speed" property="speed" jdbcType="CHAR" />
+		<result column="speedext" property="speedext" jdbcType="INTEGER" />
+		<result column="wapper" property="wapper" jdbcType="CHAR" />
+		<result column="sendtype" property="sendtype" jdbcType="CHAR" />
+		<result column="sendmethod" property="sendmethod" jdbcType="CHAR" />
+		<result column="receiver" property="receiver" jdbcType="VARCHAR" />
+		<result column="receivertel" property="receivertel" jdbcType="VARCHAR" />
+		<result column="receivermobile" property="receivermobile"
+			jdbcType="VARCHAR" />
+		<result column="receivermail" property="receivermail" jdbcType="VARCHAR" />
+		<result column="country" property="country" jdbcType="INTEGER" />
+		<result column="province" property="province" jdbcType="INTEGER" />
+		<result column="city" property="city" jdbcType="INTEGER" />
+		<result column="area" property="area" jdbcType="INTEGER" />
+		<result column="address" property="address" jdbcType="VARCHAR" />
+		<result column="payment" property="payment" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="totalamount" property="totalamount" jdbcType="INTEGER" />
+		<result column="totalevaluate" property="totalevaluate"
+			jdbcType="DECIMAL" />
+		<result column="zip" property="zip" jdbcType="VARCHAR" />
+		<result column="requesttime" property="requesttime" jdbcType="TIMESTAMP" />
+		<result column="requeststatus" property="requeststatus"
+			jdbcType="CHAR" />
+		<result column="updatetime" property="updatetime" jdbcType="TIMESTAMP" />
+		<result column="delflag" property="delflag" jdbcType="CHAR" />
+		<result column="internalstates" property="internalstates"
+			jdbcType="CHAR" />
+		<result column="imgpath" property="imgpath" jdbcType="VARCHAR" />
+		<result column="ownid" property="ownid" jdbcType="VARCHAR" />
+		<result column="deliveryno" property="deliveryno" jdbcType="VARCHAR" />
+		<result column="paystatus" property="paystatus" jdbcType="CHAR" />
+		<result column="confirmstatus" property="confirmstatus"
+			jdbcType="CHAR" />
+	</resultMap>
+	<resultMap id="TaskListMap" type="com.ytgrading.bean.TaskList">
+		<result column="code" property="code" jdbcType="VARCHAR" />
+		<result column="boxcode" property="boxcode" jdbcType="VARCHAR" />
+		<result column="requesttime" property="requesttime" jdbcType="TIMESTAMP" />
+		<result column="requeststatus" property="requeststatus" jdbcType="VARCHAR" />
+		<result column="updatetime" property="updatetime" jdbcType="TIMESTAMP" />
+		<result column="speed" property="speed" jdbcType="CHAR" />
+		<result column="duetime" property="duetime" jdbcType="TIMESTAMP" />
+		<result column="differtime" property="differtime" jdbcType="INTEGER" />
+		<result column="totalamount" property="totalamount" jdbcType="INTEGER" />
+		<result column="sendtype" property="sendtype" jdbcType="CHAR" />
+		<result column="flag" property="flag" jdbcType="CHAR" />
+		<result column="status" property="status" jdbcType="CHAR" />
+		<result column="entityType" property="entityType" jdbcType="INTEGER" />
+	</resultMap>
+	<select id="selectByid" resultMap="RequestMap"
+		parameterType="com.ytgrading.dto.RequestExample">
+		select
+		<include refid="Request_Column_List" />
+		from request_main where
+		id in
+		<foreach item="item" index="index" collection="id" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+	<select id="selectPackageByOwnid" resultMap="TaskListMap">
+		select * FROM(
+				select ''as requestid,p.packno as code,'' as
+				boxcode,''as
+				requesttime,''as requeststatus,''as updatetime,''
+				as speed,'' as duetime,null as differtime,''as
+				totalamount,'' as sendtype,'1' as flag,''as status,NULL AS paydiffertime,
+			    '--' AS payinfo,'' as entityType 
+				from logistics_pack p where
+				p.cutstatus='0' and
+				p.receivestatus!='1' and
+				p.ownid=#{ownid,jdbcType=INTEGER}
+			) dd 
+		where 1=1
+		<if test="billnumber !=0">    
+			<if test="flag !=null">    
+	          and code=#{billnumber,jdbcType=INTEGER}    
+	          and flag=#{flag,jdbcType=CHAR}
+           </if>
+       </if>
+		LIMIT #{page,jdbcType=INTEGER},#{pagesize,jdbcType=INTEGER}
+	</select>
+	<select id="selectByOwnid" resultMap="TaskListMap">
+		select * FROM(
+				select
+				t.id as requestid,t.requestcode as
+		code,t.boxcode,t.requesttime,t.requeststatus,t.updatetime,t.speed,
+		    t.duetime,time_to_sec(timediff(t.duetime,now())) as 
+		differtime,t.totalamount,t.sendtype,
+				'0' as flag,t.internalstates as status,
+			    TIME_TO_SEC(
+			      TIMEDIFF(
+			        (SELECT 
+			          DATE_FORMAT(
+			            MAX(p.createdate),
+			            '%Y-%m-%d %H:%i:%S'
+			          ) 
+			        FROM
+			          pay_journal p 
+			        WHERE FIND_IN_SET(t.requestcode, p.requestcode)),
+			        t.duetime
+			      )
+			    ) * (- 1) AS paydiffertime,
+			    (
+			      CASE
+			        WHEN t.paystatus = '1' 
+			        THEN IFNULL(
+			          (SELECT 
+			            DATE_FORMAT(
+			              MAX(p.createdate),
+			              '%Y-%m-%d %H:%i:%S'
+			            ) 
+			          FROM
+			            pay_journal p 
+			          WHERE FIND_IN_SET(t.requestcode, p.requestcode)),
+			          "已支付"
+			        ) 
+			        ELSE "--" 
+			      END
+			    ) payinfo,t.entitytype as entityType
+    		 from request_main t where
+				t.ownid=#{ownid,jdbcType=INTEGER} AND requeststatus !='7' AND requeststatus > '0'
+				<if test="entityType != -1">
+					AND t.entitytype=#{entityType,jdbcType=INTEGER} 
+	           </if>
+				ORDER BY
+				time_to_sec(timediff(now(), updatetime)) desc,code
+			) dd 
+		where 1=1
+		<if test="billnumber !=0">    
+			<if test="flag !=null">    
+	          and code=#{billnumber,jdbcType=INTEGER}    
+	          and flag=#{flag,jdbcType=CHAR}
+           </if>
+       </if>
+		LIMIT #{page,jdbcType=INTEGER},#{pagesize,jdbcType=INTEGER}
+	</select>
+	<select id="findreqcoinbycode" resultMap="TaskListMap">
+		 select rc.coincode as code,
+			CASE r.entitytype
+				WHEN '1'
+						THEN c.fullsubject
+				WHEN '2'
+						THEN sbbi.fullsubject				
+				WHEN '3'
+						THEN sacb.fullsubject
+				WHEN '5'
+						THEN smcbi.fullsubject
+				END as fullsubject,
+ 			r.requestcode as boxcode,
+			r.requeststatus as requeststatus,
+    		r.internalstates as status,
+    		time_to_sec(timediff(r.duetime,now())) as differtime
+			from request_coin rc 
+   			LEFT join coin c on rc.coinid = c.id
+    		LEFT join request_main r on rc.requestid=r.id
+				LEFT JOIN sys_ancient_coin_basic_info sacb ON sacb.id=rc.coinid
+				LEFT JOIN sys_mechanism_coin_basic_info smcbi ON smcbi.id=rc.coinid
+				LEFT JOIN sys_bill_basic_info sbbi ON sbbi.id=rc.coinid
+			where rc.coincode like concat(#{coincode,jdbcType=VARCHAR},'%') 
+			order by rc.coincode
+	</select>
+	<select id="selectByOwnid1" resultType="com.ytgrading.bean.TaskList">
+		select
+		requestid,code,boxcode,requesttime,requeststatus,speed,totalamount,flag,status
+		FROM(
+		select
+		t.id as requestid,t.requestcode as
+		code,t.boxcode,t.requesttime,t.requeststatus,t.speed,t.totalamount
+		,'0' as flag,t.internalstates as status from request_main t where
+		t.ownid=#{ownid,jdbcType=INTEGER}
+		ORDER BY
+		requesttime)
+		dd LIMIT
+		#{page,jdbcType=INTEGER},#{pagesize,jdbcType=INTEGER}
+	</select>
+	<select id="selectPackageAll" resultType="java.lang.Integer">
+		select count(*) FROM(
+		select p.packno as code,'' as boxcode,''as
+		requesttime,''as requeststatus,''
+		as speed,''as totalamount,'1' as flag
+		from logistics_pack p where
+		p.cutstatus='0' and
+		p.ownid=#{ownid,jdbcType=INTEGER}
+		ORDER BY requesttime)
+		dd    
+        <if test="billnumber !=0">    
+         <if test="flag !=null">    
+	          where code=#{billnumber,jdbcType=INTEGER}    
+	          and flag=#{flag,jdbcType=CHAR}
+           </if>  
+       </if>     
+	</select>
+	<select id="selectAll" resultType="java.lang.Integer">
+		select count(*) FROM(
+		select t.requestcode as
+		code,t.boxcode,t.requesttime,t.requeststatus,t.speed,t.totalamount
+		,'0' as flag from request_main t where t.ownid=#{ownid,jdbcType=INTEGER}
+		AND requeststatus !='7' AND requeststatus > '0'
+		<if test="entityType != -1">
+			AND t.entitytype=#{entityType,jdbcType=INTEGER} 
+          </if>
+		ORDER BY requesttime)
+		dd    
+        <if test="billnumber !=0">    
+         <if test="flag !=null">    
+	          where code=#{billnumber,jdbcType=INTEGER}    
+	          and flag=#{flag,jdbcType=CHAR}
+           </if>  
+       </if>     
+	</select>
+	<select id="selectAll1" resultType="java.lang.Integer">
+		select
+		count(*) FROM
+		request_main t
+		where
+		t.ownid=#{ownid,jdbcType=INTEGER}
+		AND
+		requeststatus='6'
+	</select>
+	<select id="selectByRequest" resultType="com.ytgrading.dto.Request">
+		select
+		<include refid="Request_Column_List" />
+		from request_main
+		WHERE
+			(
+				requestcode = #{id}
+				AND LENGTH(#{id}) &lt;= 10
+			)
+		OR (
+			id = #{id}
+			AND LENGTH(#{id}) &gt; 10
+		)
+	</select>
+	<resultMap id="SysCityMap" type="com.ytgrading.dto.SysCity">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="code" property="code" jdbcType="VARCHAR" />
+		<result column="hot" property="hot" jdbcType="CHAR" />
+		<result column="zip" property="zip" jdbcType="VARCHAR" />
+		<result column="parentid" property="parentid" jdbcType="INTEGER" />
+	</resultMap>
+	<resultMap id="SysCityWithBLOBs" type="com.ytgrading.dto.SysCityWithBLOBs"
+		extends="SysCityMap">
+		<result column="fullname" property="fullname" jdbcType="LONGVARCHAR" />
+		<result column="shortname" property="shortname" jdbcType="LONGVARCHAR" />
+	</resultMap>
+	<select id="city" resultMap="SysCityWithBLOBs" parameterType="java.lang.Integer">
+		select
+		id, code, hot, zip, parentid,ExtractValue(fullname,
+		"//value[@lang='zh_CN']")
+		as
+		fullname, shortname
+		from sys_city
+		where
+		id=#{id,jdbcType=INTEGER}
+	</select>
+	<resultMap id="SysDistrictMap" type="com.ytgrading.dto.SysDistrict">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="code" property="code" jdbcType="VARCHAR" />
+		<result column="hot" property="hot" jdbcType="CHAR" />
+		<result column="zip" property="zip" jdbcType="VARCHAR" />
+		<result column="parentid" property="parentid" jdbcType="INTEGER" />
+	</resultMap>
+	<resultMap id="SysDistrictWithBLOBs" type="com.ytgrading.dto.SysDistrictWithBLOBs"
+		extends="SysDistrictMap">
+		<result column="fullname" property="fullname" jdbcType="LONGVARCHAR" />
+		<result column="shortname" property="shortname" jdbcType="LONGVARCHAR" />
+	</resultMap>
+	<select id="district" resultMap="SysDistrictWithBLOBs"
+		parameterType="java.lang.Integer">
+		select
+		id, code, hot, zip, parentid,ExtractValue(fullname,
+		"//value[@lang='zh_CN']")
+		as
+		fullname, shortname
+		from sys_district
+		where
+		id=#{id,jdbcType=INTEGER}
+	</select>
+	<resultMap id="SysProvinceMap" type="com.ytgrading.dto.SysProvince">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="parentid" jdbcType="INTEGER" property="parentid" />
+	</resultMap>
+	<resultMap extends="SysProvinceMap" id="SysProvinceWithBLOBs"
+		type="com.ytgrading.dto.SysProvinceWithBLOBs">
+		<result column="name" jdbcType="LONGVARCHAR" property="name" />
+		<result column="shortname" jdbcType="LONGVARCHAR" property="shortname" />
+	</resultMap>
+	<select id="province" resultMap="SysProvinceWithBLOBs"
+		parameterType="java.lang.Integer">
+		select
+		id, parentid,ExtractValue(name,
+		"//value[@lang='zh_CN']")
+		as
+		name,
+		shortname
+		from sys_province
+		where
+		id=#{id,jdbcType=INTEGER}
+	</select>
+	<select id="selectDetail" resultType="com.ytgrading.bean.Review"
+		parameterType="java.lang.String">
+		select
+		d.id,d.numindex,d.totalreqcost,d.totalevaluate,d.amountofissue,d.amount,d.coinid,d.requestid,d.score,d.remark,c.years,c.shortsubject,
+		c.fullsubject as fulltitle,c.evaluate,d.evaluate guestappraisal,
+		c.version,c.facevalue,
+		(CASE WHEN t.id=1 THEN ExtractValue(m.fullname, "//value[@lang='zh_CN']") ELSE 
+		ExtractValue(m.fullname, "//value[@lang='zh_CN']") END)  as caizhi,
+		(CASE WHEN t.id=1 THEN ExtractValue(t.fullname, "//value[@lang='zh_CN']") ELSE 
+		ExtractValue(t.fullname, "//value[@lang='zh_CN']") END)  as guojia,
+		(CASE WHEN t.id=1 THEN ExtractValue(q.fullname, "//value[@lang='zh_CN']") ELSE 
+		ExtractValue(q.fullname, "//value[@lang='zh_CN']") END) as zhiliang,
+		CONCAT(c.weight,ExtractValue(s.fullname, "//value[@lang='zh_CN']")) as zhongliang,c.weight,
+		c.weightshow,facevaluedis,d.guestappraisal,sci.typename as cointypename,c.enfullsubject
+		from request_detail d ,coin c ,sys_coin_material m
+		,sys_country t , sys_coin_mquality q ,sys_coin_munits s,sys_coin_issuecode sci
+		where d.coinid= c.id
+		and c.material = m.id
+		and c.mquality = q.id
+		and c.unitofmeasurement = s.id
+		and c.country = t.id
+		and c.issuecode=sci.id
+		and d.requestid =
+		#{id,jdbcType=VARCHAR} ORDER BY
+		d.numindex
+	</select>
+	
+	<update id="updateRequestRemark" parameterType="com.ytgrading.bean.RequestBean">
+		update request_main
+		<set>
+			<if test="requestcode != null">
+				requestcode = #{requestcode,jdbcType=INTEGER},
+			</if>
+			<if test="packagecode != null">
+				packagecode = #{packagecode,jdbcType=VARCHAR},
+			</if>
+			<if test="usercode != null">
+				usercode = #{usercode,jdbcType=INTEGER},
+			</if>
+			<if test="userid != null">
+				userid = #{userid,jdbcType=VARCHAR},
+			</if>
+			<if test="boxcode != null">
+				boxcode = #{boxcode,jdbcType=VARCHAR},
+			</if>
+			<if test="customer != null">
+				customer = #{customer,jdbcType=VARCHAR},
+			</if>
+			<if test="mobile != null">
+				mobile = #{mobile,jdbcType=VARCHAR},
+			</if>
+			<if test="tel != null">
+				tel = #{tel,jdbcType=VARCHAR},
+			</if>
+			<if test="fax != null">
+				fax = #{fax,jdbcType=VARCHAR},
+			</if>
+			<if test="mail != null">
+				mail = #{mail,jdbcType=VARCHAR},
+			</if>
+			<if test="serviceid != null">
+				serviceid = #{serviceid,jdbcType=CHAR},
+			</if>
+			<if test="speed != null">
+				speed = #{speed,jdbcType=CHAR},
+			</if>
+			<if test="speedext != null">
+				speedext = #{speedext,jdbcType=INTEGER},
+			</if>
+			<if test="wapper != null">
+				wapper = #{wapper,jdbcType=CHAR},
+			</if>
+			<if test="sendtype != null">
+				sendtype = #{sendtype,jdbcType=CHAR},
+			</if>
+			<if test="sendmethod != null">
+				sendmethod = #{sendmethod,jdbcType=CHAR},
+			</if>
+			<if test="receiver != null">
+				receiver = #{receiver,jdbcType=VARCHAR},
+			</if>
+			<if test="receivertel != null">
+				receivertel = #{receivertel,jdbcType=VARCHAR},
+			</if>
+			<if test="receivermobile != null">
+				receivermobile = #{receivermobile,jdbcType=VARCHAR},
+			</if>
+			<if test="receivermail != null">
+				receivermail = #{receivermail,jdbcType=VARCHAR},
+			</if>
+			<if test="country != null">
+				country = #{country,jdbcType=INTEGER},
+			</if>
+			<if test="province != null">
+				province = #{province,jdbcType=INTEGER},
+			</if>
+			<if test="city != null">
+				city = #{city,jdbcType=INTEGER},
+			</if>
+			<if test="area != null">
+				area = #{area,jdbcType=INTEGER},
+			</if>
+			<if test="address != null">
+				address = #{address,jdbcType=VARCHAR},
+			</if>
+			<if test="payment != null">
+				payment = #{payment,jdbcType=VARCHAR},
+			</if>
+			<if test="remark != null">
+				remark = #{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="totalpremium != null">
+				totalpremium = #{totalpremium,jdbcType=DECIMAL},
+			</if>
+			<if test="totaltransportation != null">
+				totaltransportation =
+				#{totaltransportation,jdbcType=DECIMAL},
+			</if>
+			<if test="totalinsurance != null">
+				totalinsurance = #{totalinsurance,jdbcType=DECIMAL},
+			</if>
+			<if test="totalreqcost != null">
+				totalreqcost = #{totalreqcost,jdbcType=DECIMAL},
+			</if>
+			<if test="totalcost != null">
+				totalcost = #{totalcost,jdbcType=DECIMAL},
+			</if>
+			<if test="totalweight != null">
+				totalweight = #{totalweight,jdbcType=DECIMAL},
+			</if>
+			<if test="totalamount != null">
+				totalamount = #{totalamount,jdbcType=INTEGER},
+			</if>
+			<if test="totalevaluate != null">
+				totalevaluate = #{totalevaluate,jdbcType=DECIMAL},
+			</if>
+			<if test="totalpreferential != null">
+				totalpreferential = #{totalpreferential,jdbcType=DECIMAL},
+			</if>
+			<if test="zip != null">
+				zip = #{zip,jdbcType=VARCHAR},
+			</if>
+			<if test="requeststatus != null">
+				requeststatus = #{requeststatus,jdbcType=CHAR},
+			</if>
+			<!-- <if test="updatetime != null"> -->
+			updatetime = now(),
+			<!-- </if> -->
+			<if test="delflag != null">
+				delflag = #{delflag,jdbcType=CHAR},
+			</if>
+			<if test="internalstates != null">
+				internalstates = #{internalstates,jdbcType=CHAR},
+			</if>
+			<if test="imgpath != null">
+				imgpath = #{imgpath,jdbcType=VARCHAR},
+			</if>
+			<if test="ownid != null">
+				ownid = #{ownid,jdbcType=VARCHAR},
+			</if>
+			<if test="deliveryno != null">
+				deliveryno = #{deliveryno,jdbcType=VARCHAR},
+			</if>
+			<if test="paystatus != null">
+				paystatus = #{paystatus,jdbcType=CHAR},
+			</if>
+			<if test="confirmstatus != null">
+				confirmstatus = #{confirmstatus,jdbcType=CHAR},
+			</if>
+			<if test="notice != null">
+				notice = #{notice,jdbcType=CHAR},
+			</if>
+			<if test="applytime != null">
+				applytime = #{applytime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="applytype != null">
+				applytype = #{applytype,jdbcType=CHAR},
+			</if>
+			<if test="othercost != null">
+				othercost = #{othercost,jdbcType=DECIMAL},
+			</if>
+			<if test="costremark != null">
+				costremark = #{costremark,jdbcType=VARCHAR},
+			</if>
+			<if test="usedeals != null">
+				usedeals = #{usedeals,jdbcType=CHAR},
+			</if>
+			<if test="resid != null">
+				resid = #{resid,jdbcType=INTEGER},
+			</if>
+			<if test="agreement != null">
+				agreement = #{agreement,jdbcType=CHAR},
+			</if>
+			<if test="usercardtype != null">
+				usercardtype = #{usercardtype,jdbcType=CHAR},
+			</if>
+			<if test="usercardcode != null">
+				usercardcode = #{usercardcode,jdbcType=VARCHAR},
+			</if>
+			<if test="addedcoinremark != null">
+				addedcoinremark = #{addedcoinremark,jdbcType=VARCHAR},
+			</if>
+			<if test="isproxy != null">
+				isproxy = #{isproxy,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+	<update id="updateRequestStatus" parameterType="java.lang.String">
+		update request_main
+		set confirmstatus = '1'
+		where id =
+		#{id,jdbcType=VARCHAR}
+	</update>
+	<update id="updateRequestDetail" parameterType="java.lang.String">
+		update
+		request_detail
+		set amount
+		=amount+#{num,jdbcType=INTEGER},evaluate=#{evaluate,jdbcType=DECIMAL}
+		where id =
+		#{id,jdbcType=VARCHAR}
+	</update>
+	<insert id="insertRequestCoin">
+		insert into request_coin(id, coinid, requestid,requestdetailid,coincode, score,
+		customerscore, tagindex,blockNum,difversion,whetherSample,
+		weight,guestWRGrade,customSize,coincovernewold,coinremark,coinmotto,coinboxid,coinevaluate,coinnum,reqcost,coinpostmark) values
+		<foreach collection="list" item="lt" separator=",">
+			(#{lt.id},#{lt.coinid},#{lt.requestid},
+			#{lt.requestdetailid},#{lt.coincode},
+			#{lt.score},#{lt.customerscore},
+			<if test="entitytype==4">
+			CONCAT(
+				#{lt.coincode},
+				(
+					SELECT
+						CONCAT(
+							IfNULL(ss.issuetime, ""),
+							IfNULL(ss.issuedate, ""),
+							IfNULL(ss.zhino, ""),
+							IfNULL(ss.fullsubject, ""),
+							(
+								CASE
+								WHEN #{lt.coinnum} = "1x1" THEN
+									IfNULL(ss.facevaluedis, "")
+								ELSE
+									IfNULL(
+										(
+											SELECT
+												dicvalue
+											FROM
+												sys_dictionary_basic_data_info
+											WHERE
+												dictype = 'STAMP_JOIN_TYPE'
+											AND dickey = (
+												SELECT
+													stampjointype
+												FROM
+													request_detail
+												WHERE
+													id = #{lt.requestdetailid}
+											)
+										),
+										CONCAT(
+											IfNULL((
+												SELECT
+													stampjointype
+												FROM
+													request_detail
+												WHERE
+													id = #{lt.requestdetailid}
+											),"0"),
+											"连"
+										)
+									)
+								END
+							)
+						)
+					FROM
+						sys_stamp_basic_info ss
+					WHERE
+						ss.id = #{lt.coinid}
+				),
+				(
+					SELECT
+						dicvalue
+					FROM
+						sys_dictionary_basic_data_info
+					WHERE
+						dictype = 'COVERNEWOLD'
+					AND dickey = #{lt.coincovernewold}
+				),
+				IfNULL(#{lt.coinpostmark}, "")
+			),
+			</if>
+			<if test="entitytype==6">
+			CONCAT(
+				#{lt.coincode},
+			(
+				select fullsubject FROM
+					sys_suit_basic_info ss
+				WHERE
+					ss.id = #{lt.coinid}
+			)),
+			</if>
+			<if test="entitytype!=4 and entitytype!=6">
+			#{lt.tagindex},
+			</if>
+			#{lt.blockNum},#{lt.difversion},#{lt.whetherSample},
+			#{lt.weight},#{lt.guestWRGrade},#{lt.customSize},
+			#{lt.coincovernewold},#{lt.coinremark},#{lt.coinmotto},
+			#{lt.coinboxid},#{lt.coinevaluate},#{lt.coinnum},#{lt.reqcost},#{lt.coinpostmark})
+		</foreach>
+	</insert>
+	<delete id="deleteRequestCoin" parameterType="java.lang.String">
+		delete from request_coin where requestid = #{requestid,jdbcType=VARCHAR}
+	</delete>
+	<sql id="request_coin_Column_List">
+		id, coinid, requestid, requestdetailid, coincode, score, customerscore
+	</sql>
+	<sql id="request_coin_Blob_Column_List">
+		tagindex
+	</sql>
+	<select id="selectRequestCoin" resultType="com.ytgrading.bean.RequestCoinBean"
+		parameterType="java.lang.String">
+		select
+		<include refid="request_coin_Column_List" />
+		,
+		<include refid="request_coin_Blob_Column_List" />
+		from request_coin
+		where coincode = #{coincode,jdbcType=VARCHAR}
+	</select>
+	<resultMap id="RequestCoinResultMap" type="com.ytgrading.bean.RequestCoinBean">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="coinid" property="coinid" jdbcType="INTEGER" />
+		<result column="requestid" property="requestid" jdbcType="VARCHAR" />
+		<result column="requestdetailid" property="requestdetailid"
+			jdbcType="VARCHAR" />
+		<result column="coincode" property="coincode" jdbcType="VARCHAR" />
+		<result column="score" property="score" jdbcType="DECIMAL" />
+		<result column="customerscore" property="customerscore"
+			jdbcType="DECIMAL" />
+		<result column="tagindex" property="tagindex" jdbcType="LONGVARCHAR" />
+	</resultMap>
+	<select id="selectRequestdetail" resultMap="RequestCoinResultMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="request_coin_Column_List" />
+		,
+		<include refid="request_coin_Blob_Column_List" />
+		from request_coin
+		where requestdetailid =
+		#{requestdetailid,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectMaxRequestcode" resultType="java.lang.String"
+		parameterType="java.lang.String">
+		select
+		MAX(coincode)
+		from request_coin
+		where requestid =
+		#{requestid,jdbcType=VARCHAR}
+	</select>
+	<resultMap id="RequestDetailResultMap" type="com.ytgrading.bean.RequestDetailBean">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="coinid" property="coinid" jdbcType="INTEGER" />
+		<result column="amount" property="amount" jdbcType="INTEGER" />
+		<result column="evaluate" property="evaluate" jdbcType="DECIMAL" />
+		<result column="score" property="score" jdbcType="DECIMAL" />
+		<result column="requestid" property="requestid" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="numindex" property="numindex" jdbcType="INTEGER" />
+		<result column="totalreqcost" property="totalreqcost" jdbcType="DECIMAL" />
+		<result column="totalevaluate" property="totalevaluate"
+			jdbcType="DECIMAL" />
+		<result column="amountofissue" property="amountofissue"
+			jdbcType="INTEGER" />
+	</resultMap>
+	<sql id="request_detail_Column_List">
+		id, coinid, amount, evaluate, score, requestid, remark, numindex,
+		totalreqcost, totalevaluate,
+		amountofissue
+	</sql>
+	<select id="selectRequestDindex" resultMap="RequestDetailResultMap">
+		select
+		<include refid="request_detail_Column_List" />
+		from request_detail
+		where numindex =
+		#{numindex,jdbcType=INTEGER} and
+		requestid=#{id,jdbcType=VARCHAR}
+	</select>
+	<select id="selectByPrimaryKey" resultMap="RequestDetailResultMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="request_detail_Column_List" />
+		from request_detail
+		where id = #{id,jdbcType=VARCHAR}
+	</select>
+	<select id="selectRequestCoinid" resultMap="RequestCoinResultMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="request_coin_Column_List" />
+		from request_coin
+		where requestdetailid =
+		#{requestdetailid,jdbcType=VARCHAR}
+	</select>
+	<update id="updateSucc" parameterType="java.lang.String">
+		update
+		request_main 
+		set
+		requeststatus
+		='3',internalstates='2',requesttime=NOW()
+		where id =
+		#{requestid,jdbcType=VARCHAR}
+	</update>
+	<update id="updateRDetail" parameterType="java.lang.String">
+		update
+		request_detail
+		set
+		amount=#{amount,jdbcType=INTEGER},
+		totalreqcost=#{totalreqcost,jdbcType=DECIMAL},
+		totalevaluate=#{totalevaluate,jdbcType=DECIMAL}
+		where id =
+		#{id,jdbcType=VARCHAR}
+	</update>
+	<resultMap id="employeeMap" type="com.ytgrading.dto.Employee">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<id column="userid" property="userid" jdbcType="INTEGER" />
+		<result column="role" property="role" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="employee_Column_List">
+		id, userid,role, name, password
+	</sql>
+	<select id="selectEmployee" resultMap="employeeMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="employee_Column_List" />
+		from employee
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<insert id="insertSelective" parameterType="com.ytgrading.dto.PayJournal">
+		insert into pay_journal
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="payid != null">
+				payid,
+			</if>
+			<if test="userid != null">
+				userid,
+			</if>
+			<if test="employeeid != null">
+				employeeid,
+			</if>
+			<if test="requestcode != null">
+				requestcode,
+			</if>
+			<if test="payamount != null">
+				payamount,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="balance != null">
+				balance,
+			</if>
+			<if test="createdate != null">
+				createdate,
+			</if>
+			<if test="flag != null">
+				flag,
+			</if>
+			<if test="deflag != null">
+				deflag,
+			</if>
+			<if test="billno != null">
+				billno,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="payid != null">
+				#{payid,jdbcType=VARCHAR},
+			</if>
+			<if test="userid != null">
+				#{userid,jdbcType=VARCHAR},
+			</if>
+			<if test="employeeid != null">
+				#{employeeid,jdbcType=INTEGER},
+			</if>
+			<if test="requestcode != null">
+				#{requestcode,jdbcType=VARCHAR},
+			</if>
+			<if test="payamount != null">
+				#{payamount,jdbcType=DECIMAL},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=CHAR},
+			</if>
+			<if test="balance != null">
+				#{balance,jdbcType=DECIMAL},
+			</if>
+			<if test="createdate != null">
+				#{createdate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="flag != null">
+				#{flag,jdbcType=CHAR},
+			</if>
+			<if test="deflag != null">
+				#{deflag,jdbcType=CHAR},
+			</if>
+			<if test="billno != null">
+				#{billno,jdbcType=CHAR},
+			</if>
+		</trim>
+	</insert>
+	<resultMap id="PayJournalResultMap" type="com.ytgrading.dto.PayJournal">
+		<id column="payid" property="payid" jdbcType="VARCHAR" />
+		<result column="userid" property="userid" jdbcType="VARCHAR" />
+		<result column="billno" property="billno" jdbcType="VARCHAR" />
+		<result column="employeeid" property="employeeid" jdbcType="INTEGER" />
+		<result column="requestcode" property="requestcode" jdbcType="VARCHAR" />
+		<result column="payamount" property="payamount" jdbcType="DECIMAL" />
+		<result column="status" property="status" jdbcType="CHAR" />
+		<result column="balance" property="balance" jdbcType="DECIMAL" />
+		<result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+		<result column="flag" property="flag" jdbcType="CHAR" />
+		<result column="deflag" property="deflag" jdbcType="CHAR" />
+	</resultMap>
+	<sql id="PayJournal_Column_List">
+		payid, userid, billno, employeeid, requestcode, payamount, status,
+		balance, createdate,
+		flag, deflag
+	</sql>
+	<select id="selectPayJournal" resultMap="PayJournalResultMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="PayJournal_Column_List" />
+		from pay_journal
+		where payid = #{payid,jdbcType=VARCHAR}
+	</select>
+	<update id="updatePayJournal" parameterType="map">
+		update pay_journal set flag ='1' where payid = #{id,jdbcType=VARCHAR}
+	</update>
+	<update id="updatePayJournalZero" parameterType="map">
+		update pay_journal set flag ='0' where payid = #{id,jdbcType=VARCHAR}
+	</update>
+	<select id="getUpdateTime" resultType="java.util.Date"
+		parameterType="java.lang.String">
+		SELECT updatetime FROM request_main 
+		WHERE requestcode= #{requestcode,jdbcType=INTEGER}
+	</select>
+	<select id="selReqInterStatus" resultType="java.lang.String"
+		parameterType="java.lang.String">
+		SELECT internalstates FROM request_main 
+		WHERE requestcode = #{requestcode,jdbcType=INTEGER}
+	</select>
+	<select id="getReqStatus" resultType="java.lang.String"
+		parameterType="java.lang.String">
+		SELECT requeststatus FROM request_main 
+		WHERE requestcode = #{requestcode,jdbcType=INTEGER}
+	</select>
+	<update id="reqInvalid" parameterType="java.lang.String">
+		update request_main 
+		set
+		internalstates ='101',
+		requeststatus='31'
+		WHERE requestcode = #{requestcode,jdbcType=INTEGER}
+	</update>
+</mapper>

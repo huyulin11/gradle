@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kaifantech.mappings.TaskSiteLogicMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 <cache type="org.mybatis.caches.ehcache.LoggingEhcache" 
+		/> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+	<!-- 以下与实体类的中字段一致 -->
+
+	<select id="findPage" resultType="com.kaifantech.entity.TaskSiteLogicFormMap">
+		select *
+		from ${@com.kaifantech.init.sys.SystemInitTables@TASK_SITE_LOGIC}
+		where 1 = 1
+		<if test="delflag != null and delflag != ''">
+		and delflag = 0
+		</if>
+		<if test="siteid != null and siteid != ''">
+		and siteid like '%${siteid}%'
+		</if>
+		<if test="nextid != null and nextid != ''">
+		and nextid like '%${nextid}%'
+		</if>
+		<if test="side != null and side != ''">
+		and side like '%${side}%'
+		</if>
+		order by siteid 
+	</select>
+
+	<select id="findAll" resultType="com.kaifantech.bean.tasksite.TaskSiteLogicBean">
+		select *
+		from ${@com.kaifantech.init.sys.SystemInitTables@TASK_SITE_LOGIC}
+		where 1 = 1
+		and delflag = 0
+	</select>
+
+	<insert id="add">
+		insert into ${@com.kaifantech.init.sys.SystemInitTables@TASK_SITE_LOGIC}
+		( 
+		siteid,
+		nextid,
+		side
+		)
+		value
+		(
+		#{siteid},
+		#{nextid},
+		#{side}
+		)
+	</insert>
+</mapper>

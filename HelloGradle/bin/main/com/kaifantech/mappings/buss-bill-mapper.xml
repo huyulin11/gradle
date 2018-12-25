@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kaifantech.mappings.BussBillMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 <cache type="org.mybatis.caches.ehcache.LoggingEhcache" 
+		/> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+	<!-- 以下与实体类的中字段一致 -->
+
+	<select id="findPage" resultType="com.kaifantech.entity.BillFormMap">
+		select *
+		from kf_buss.dairy_work_bill_info
+		where 1 = 1
+		and delflag = 0
+		<if test="occurdate != null and occurdate != ''">
+		and occurdate like '${occurdate}%'
+		</if>
+		<if test="species != null and species != ''">
+		and species like '%${species}%'
+		</if>
+		order by occurdate desc,createtime desc
+	</select>
+
+	<insert id="add">
+		insert into kf_buss.dairy_work_bill_info
+		( id ,
+		occurdate ,
+		species ,
+		remarks ,
+		amount
+		)
+		value
+		(uuid(),
+		#{occurdate},
+		#{species},
+		#{remarks},
+		#{amount}
+		)
+	</insert>
+</mapper>

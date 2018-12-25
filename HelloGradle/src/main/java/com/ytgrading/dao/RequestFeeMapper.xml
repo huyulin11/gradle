@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.RequestFeeMapper">
+<select id="selectRequestFee" resultType="com.ytgrading.bean.RequestFeeBean" parameterType="java.lang.String">
+	SELECT
+		requestid,
+		requestcode,
+		totalamount,
+		totalcost,
+		totalreqcost,
+		totalevaluate,
+		totalweight,
+		totalpremium,
+		totaltransportation,
+		totalpreferential,
+		totalinsurance,
+		totalboxfee,
+		othercost,
+		createtime,
+		updatetime
+	FROM
+		request_fee
+	WHERE
+		requestid = #{id,jdbcType=VARCHAR}
+	OR requestcode = #{id,jdbcType=VARCHAR}
+	GROUP BY id DESC
+	LIMIT 1
+</select>
+	
+<insert id="insert" parameterType="com.ytgrading.bean.RequestFeeBean" >
+  insert into request_fee (
+	requestid,
+	requestcode,
+	totalamount,
+	totalcost,
+	totalreqcost,
+	totalevaluate,
+	totalweight,
+	totalpremium,
+	totaltransportation,
+	totalpreferential,
+	totalinsurance,
+	totalboxfee,
+	othercost,
+	createtime,
+	updatetime)
+  values (
+  	#{requestid}, 
+  	#{requestcode}, 
+  	#{totalamount}, 
+  	#{totalcost},
+  	#{totalreqcost},
+  	#{totalevaluate},
+  	#{totalweight},
+  	#{totalpremium},
+  	#{totaltransportation},
+  	#{totalpreferential},
+  	#{totalinsurance},
+  	#{totalboxfee},
+  	#{othercost},
+  	now(),
+  	now())
+</insert>
+
+<update id="update" parameterType="com.ytgrading.bean.RequestFeeBean" >
+    update request_fee
+    <set >
+      <if test="totalamount != null" >
+        totalamount = #{totalamount},
+      </if>
+      <if test="totalcost != null" >
+        totalcost = #{totalcost},
+      </if>
+      <if test="totalreqcost != null" >
+        totalreqcost = #{totalreqcost},
+      </if>
+       <if test="totalevaluate != null" >
+        totalevaluate = #{totalevaluate},
+      </if>
+      <if test="totalweight != null" >
+	  	totalweight = #{totalweight},
+      </if>
+      <if test="totalpremium != null" >
+	  	totalpremium = #{totalpremium},
+      </if>
+      <if test="totaltransportation != null" >
+	  	totaltransportation = #{totaltransportation},
+      </if>
+      <if test="totalpreferential != null" >
+	  	totalpreferential = #{totalpreferential},
+      </if>
+      <if test="totalinsurance != null" >
+	  	totalinsurance = #{totalinsurance},
+      </if>
+      <if test="totalboxfee != null" >
+	  	totalboxfee = #{totalboxfee},
+      </if>
+      <if test="othercost != null" >
+	  	othercost = #{othercost},
+      </if>
+       updatetime = now()
+    </set>
+    where requestid = #{requestid} or requestcode = #{requestcode}
+  </update>
+  
+  <delete id="delete" parameterType="java.lang.String" >
+    delete from request_fee
+    where id = #{id} or requestcode=#{id}
+  </delete>
+</mapper>

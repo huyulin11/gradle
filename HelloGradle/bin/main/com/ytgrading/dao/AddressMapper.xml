@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.AddressMapper">
+
+	<resultMap id="UserAddressMap" type="com.ytgrading.dto.UserAddress">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="country" property="country" jdbcType="VARCHAR" />
+		<result column="province" property="province" jdbcType="VARCHAR" />
+		<result column="city" property="city" jdbcType="VARCHAR" />
+		<result column="area" property="area" jdbcType="VARCHAR" />
+		<result column="address" property="address" jdbcType="VARCHAR" />
+		<result column="receiver" property="receiver" jdbcType="VARCHAR" />
+		<result column="zip" property="zip" jdbcType="VARCHAR" />
+		<result column="tel" property="tel" jdbcType="VARCHAR" />
+		<result column="mail" property="mail" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="isdefault" property="isdefault" jdbcType="CHAR" />
+		<result column="userid" property="userid" jdbcType="VARCHAR" />
+		<result column="fax" property="fax" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="delflag" property="delflag" jdbcType="CHAR" />
+	</resultMap>
+
+	<sql id="UserAddress_Column_List">
+		id, country, province, city, area, address, receiver, zip,
+		tel, mail,
+		remark, isdefault,
+		userid, fax, mobile, delflag
+	</sql>
+
+	<select id="selectByKey" resultMap="UserAddressMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="UserAddress_Column_List" />
+		from user_address
+		where  isdefault = '1' and delflag = '0' and userid = #{userid,jdbcType=VARCHAR} 
+	</select>
+
+	<select id="getAllProvince" resultType="com.ytgrading.dto.SysProvince">
+		select
+		id,ExtractValue(name, "//value[@lang='zh_CN']") as name from
+		sys_province where parentid =#{parentid,jdbcType=VARCHAR}
+	</select>
+
+	<select id="getAllCity" resultType="com.ytgrading.dto.SysCity">
+		select 
+		id, ExtractValue(fullname, "//value[@lang='zh_CN']") as name from 
+		sys_city where parentid =#{parentid,jdbcType=VARCHAR}
+	</select>
+
+	<select id="getAllDistrict" resultType="com.ytgrading.dto.SysDistrict">
+		select 
+		id, ExtractValue(fullname, "//value[@lang='zh_CN']") as name from
+		sys_district where parentid =#{parentid,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="getCountry"  resultType="string">
+		SELECT CONCAT(EXTRACTVALUE(fullname,"/value[@lang='zh_CN']"),
+			"(",EXTRACTVALUE(fullname,"/value[@lang='en_US']"),")") AS name
+		FROM sys_country
+		WHERE id=1
+	</select>
+	
+	<select id="getProvince" resultType="string" >
+		SELECT EXTRACTVALUE(name,"//value[@lang='zh_CN']") AS name
+		FROM sys_province
+		WHERE id=#{id}
+	</select>
+
+	<select id="getCity"  resultType="string">
+		SELECT EXTRACTVALUE(fullname,"//value[@lang='zh_CN']") AS name
+		FROM sys_city
+		WHERE id=#{id}
+	</select>
+	
+	<select id="getDistrict" resultType="string">
+		SELECT EXTRACTVALUE(fullname,"//value[@lang='zh_CN']") AS name
+		FROM sys_district
+		WHERE id=#{id}
+	</select>
+	
+	<!-- search country,province,city,district by its parent's id -->
+	<select id="selectCountry" resultType="map">
+		SELECT id , CONCAT(EXTRACTVALUE(fullname,"/value[@lang='zh_CN']"),
+			"(",EXTRACTVALUE(fullname,"/value[@lang='en_US']"),")") AS name
+		FROM sys_country
+		ORDER BY id
+	</select>
+	<select id="selectProvince" resultType="map" >
+		SELECT id,EXTRACTVALUE(name,"//value[@lang='zh_CN']") AS name
+		FROM sys_province
+		WHERE parentid=#{parentid,jdbcType=VARCHAR}
+		ORDER BY id 
+	</select>
+
+	<select id="selectCity" resultType="map">
+		SELECT id,EXTRACTVALUE(fullname,"//value[@lang='zh_CN']") AS name
+		FROM sys_city
+		WHERE parentid=#{parentid,jdbcType=VARCHAR}
+		ORDER BY id 
+	</select>
+	
+	<select id="selectDistrict" resultType="map">
+		SELECT id,EXTRACTVALUE(fullname,"//value[@lang='zh_CN']") AS name
+		FROM sys_district
+		WHERE parentid=#{parentid,jdbcType=VARCHAR}
+		ORDER BY id 
+	</select>
+	
+	<select id="searchAddress" resultType="map" statementType="PREPARED" >
+		SELECT id  AS countryid,NULL provinceid,NULL AS cityid,NULL AS districtid, 
+			EXTRACTVALUE(fullname,"/value[@lang='zh_CN']") AS addr
+		FROM sys_country
+		WHERE INSTR(EXTRACTVALUE(fullname,"/value"),#{keywords,jdbcType=VARCHAR}) 
+		UNION
+		SELECT sys_province.parentid,sys_province.id,NULL,NULL,
+			CONCAT(EXTRACTVALUE(sys_country.fullname,"/value[@lang='zh_CN']"),"-",
+				EXTRACTVALUE(sys_province.name,"/value[@lang='zh_CN']")) AS addr
+		FROM sys_country,sys_province
+		WHERE INSTR(EXTRACTVALUE(sys_province.NAME,"/value"),#{keywords,jdbcType=VARCHAR}) 
+			AND sys_country.id = sys_province.parentid
+		UNION
+		SELECT sys_province.parentid AS conntryid ,sys_city.parentid AS provinceid,sys_city.id AS cityid,NULL,
+			CONCAT(EXTRACTVALUE(sys_country.fullname,"/value[@lang='zh_CN']"),"-",
+				EXTRACTVALUE(sys_province.name,"/value[@lang='zh_CN']"),"-",
+				EXTRACTVALUE(sys_city.fullname,"/value[@lang='zh_CN']")) AS addr
+		FROM sys_country,sys_province,sys_city
+		WHERE INSTR(EXTRACTVALUE(sys_city.fullname,"/value"),#{keywords,jdbcType=VARCHAR})
+			AND sys_country.id = sys_province.parentid
+			AND sys_city.parentid = sys_province.id
+		UNION
+		SELECT sys_province.parentid AS conntryid ,sys_province.id AS provinceid,sys_city.id AS cityid,sys_district.id AS districtid,
+			CONCAT(EXTRACTVALUE(sys_country.fullname,"/value[@lang='zh_CN']"),"-",
+				EXTRACTVALUE(sys_province.name,"/value[@lang='zh_CN']"),"-",
+				EXTRACTVALUE(sys_city.fullname,"/value[@lang='zh_CN']"),"-",
+				EXTRACTVALUE(sys_district.fullname,"/value[@lang='zh_CN']")) AS addr
+		FROM sys_country,sys_province,sys_city,sys_district
+		WHERE INSTR(EXTRACTVALUE(sys_district.fullname,"/value"),#{keywords,jdbcType=VARCHAR})
+			AND sys_district.parentid = sys_city.id
+			AND sys_country.id = sys_province.parentid
+			AND sys_city.parentid = sys_province.id
+	</select>	
+</mapper>

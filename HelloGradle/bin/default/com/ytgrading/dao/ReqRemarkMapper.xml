@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.ReqRemarkMapper">
+	<insert id="insertReqRemark" parameterType="com.ytgrading.dto.RequestRemark">
+		insert into request_remark
+		(requestcode,remark,opuserid,isprivate,createtime)
+		values
+		(#{requestcode,jdbcType=VARCHAR},
+		 #{remark,jdbcType=CHAR},
+		 #{opuserid,jdbcType=INTEGER},
+		 1,
+		 #{createtime,jdbcType=TIMESTAMP})
+	</insert>	
+	
+	<select id="selectReqRemark" parameterType="com.ytgrading.dto.RequestRemark"
+		resultType="string">
+		select 
+		remark
+		from
+		request_remark
+		where
+		isprivate = 1
+		and
+		requestcode = #{requestcode,jdbcType=VARCHAR}
+	</select>
+	
+	<update id="updateReqRemark" parameterType="com.ytgrading.dto.RequestRemark" >
+		update 
+		request_remark
+		set
+		remark = #{remark,jdbcType=CHAR}
+		where 
+		requestcode = #{requestcode,jdbcType=VARCHAR}
+	</update>
+	
+	<delete id="deleteReqRemark" parameterType="com.ytgrading.dto.RequestRemark">
+		delete
+		from
+		request_remark
+		where
+		requestcode = #{requestcode,jdbcType=VARCHAR}
+	</delete>
+</mapper>
+
+
+
+
+
+
+
+

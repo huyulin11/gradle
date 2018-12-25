@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kaifantech.mappings.SysDicTypeMapper">
+	<select id="find" resultType="com.kaifantech.entity.SysDicTypeFormMap">
+		select *
+		from kf_csy_daj_acs.sys_dictionary_basic_type_info
+		where 1 = 1
+		<if test="dictype != null and dictype != ''">
+		and dictype like '%${dictype}%'
+		</if>
+		order by dictype
+	</select>
+
+	<insert id="add">
+		REPLACE into kf_csy_daj_acs.sys_dictionary_basic_type_info
+		( dictype ,
+		remark
+		)
+		value
+		(
+		#{dictype},
+		#{remark}
+		)
+	</insert>
+</mapper>

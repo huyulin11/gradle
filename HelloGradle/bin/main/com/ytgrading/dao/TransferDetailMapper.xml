@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.TransferDetailMapper" >
+    <select id="selectgetByGoodid" resultType="com.ytgrading.bean.LogisticsTransferBean" parameterType="java.lang.String" >
+		SELECT lt.goodsid,
+		lt.transferfrom ,(SELECT `name` FROM employee WHERE id = lt.transferfrom) AS tf_name,
+		lt.transferto,(SELECT `name` FROM employee WHERE id = lt.transferto) AS tt_name,
+		lt.occurrencetime,
+		lt.type,
+		lt.status
+		FROM logistics_transfer lt
+		WHERE lt.type='R'
+			<if test=" goodid!=null  and  goodid!='' ">
+				AND lt.goodsid= #{goodid,jdbcType=INTEGER}
+			</if>
+ 			ORDER BY lt.occurrencetime DESC 
+  </select>
+  	
+  
+ 
+</mapper>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kaifantech.mappings.ErpRoleMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 <cache type="org.mybatis.caches.ehcache.LoggingEhcache" 
+		/> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+	<!-- 以下与实体类的中字段一致 -->
+	<sql id="selectId">
+		id,
+		state,
+		rolename,
+		roleKey,
+		description
+	</sql>
+	<select id="seletUserRole" resultType="com.kaifantech.entity.RoleFormMap">
+	select 
+	<include refid="selectId"/>
+	 from employee_role
+	where 1=1
+	<if test="userId != null and userId != '' ">
+	  and employee_role.id
+		 in (SELECT roleId FROM ly_user_role WHERE
+		 userId=#{userId})
+	</if>
+	  and employee_role.delflag=0
+	</select>
+	<select id="seletAllUserRole" resultType="com.kaifantech.entity.RoleFormMap">
+	select 
+	<include refid="selectId"/>
+	 from employee_role
+	where 1=1
+	  and employee_role.delflag=0
+	</select>
+	<select id="checkButton"  resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM ly_res_user WHERE userId=#{userId,jdbcType=INTEGER} AND resId=#{resId,jdbcType=INTEGER}
+	</select>
+</mapper>

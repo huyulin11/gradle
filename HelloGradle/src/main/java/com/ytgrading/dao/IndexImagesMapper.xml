@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.IndexImagesMapper" >
+  <resultMap id="BaseResultMap" type="com.ytgrading.dto.IndexImages" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="path" property="path" jdbcType="VARCHAR" />
+    <result column="url" property="url" jdbcType="VARCHAR" />
+    <result column="imagestype" property="imagestype" jdbcType="CHAR" />
+    <result column="usable" property="usable" jdbcType="CHAR" />
+    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+    <result column="delflag" property="delflag" jdbcType="CHAR" />
+    <result column="sortflag" property="sortflag" jdbcType="CHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, path, url, imagestype, usable, createdate, delflag, sortflag,imagestitle
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from index_images WHERE delflag='0' 
+    <if test="flag != 0" >
+       AND usable='0' 
+     </if>
+	ORDER BY
+		imagestype,
+		sortflag,
+		createdate DESC
+  </select>
+  <select id="selectByType" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from index_images WHERE delflag='0' 
+     AND usable='0' 
+     AND imagestype=#{imagestype,jdbcType=VARCHAR}
+	ORDER BY
+		imagestype,
+		sortflag,
+		createdate DESC
+  </select>
+  <select id="selectByid" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from index_images WHERE id=#{id,jdbcType=VARCHAR} AND usable='0'
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from index_images
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from index_images
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ytgrading.dto.IndexImagesExample" >
+    delete from index_images
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ytgrading.dto.IndexImages" >
+    insert into index_images (id, path, url, 
+      imagestype, usable, createdate, 
+      delflag, sortflag,imagestitle)
+    values (#{id,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, 
+      #{imagestype,jdbcType=CHAR}, #{usable,jdbcType=CHAR}, #{createdate,jdbcType=TIMESTAMP}, 
+      #{delflag,jdbcType=CHAR}, #{sortflag,jdbcType=CHAR},#{imagestitle,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ytgrading.dto.IndexImages" >
+    insert into index_images
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="path != null" >
+        path,
+      </if>
+      <if test="url != null" >
+        url,
+      </if>
+      <if test="imagestype != null" >
+        imagestype,
+      </if>
+      <if test="usable != null" >
+        usable,
+      </if>
+      <if test="createdate != null" >
+        createdate,
+      </if>
+      <if test="delflag != null" >
+        delflag,
+      </if>
+      <if test="sortflag != null" >
+        sortflag,
+      </if>
+      <if test="imagestitle != null" >
+        imagestitle,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="path != null" >
+        #{path,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null" >
+        #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="imagestype != null" >
+        #{imagestype,jdbcType=CHAR},
+      </if>
+      <if test="usable != null" >
+        #{usable,jdbcType=CHAR},
+      </if>
+      <if test="createdate != null" >
+        #{createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="delflag != null" >
+        #{delflag,jdbcType=CHAR},
+      </if>
+      <if test="sortflag != null" >
+        #{sortflag,jdbcType=CHAR},
+      </if>
+      <if test="imagestitle != null" >
+        #{imagestitle,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="java.lang.String" resultType="java.lang.Integer" >
+    select count(*) from index_images 
+    WHERE imagestype=#{imagestype,jdbcType=CHAR} 
+    AND usable= '0'
+    AND delflag= '0'
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update index_images
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.path != null" >
+        path = #{record.path,jdbcType=VARCHAR},
+      </if>
+      <if test="record.url != null" >
+        url = #{record.url,jdbcType=VARCHAR},
+      </if>
+      <if test="record.imagestype != null" >
+        imagestype = #{record.imagestype,jdbcType=CHAR},
+      </if>
+      <if test="record.usable != null" >
+        usable = #{record.usable,jdbcType=CHAR},
+      </if>
+      <if test="record.createdate != null" >
+        createdate = #{record.createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.delflag != null" >
+        delflag = #{record.delflag,jdbcType=CHAR},
+      </if>
+      <if test="record.sortflag != null" >
+        sortflag = #{record.sortflag,jdbcType=CHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update index_images
+    set id = #{record.id,jdbcType=VARCHAR},
+      path = #{record.path,jdbcType=VARCHAR},
+      url = #{record.url,jdbcType=VARCHAR},
+      imagestype = #{record.imagestype,jdbcType=CHAR},
+      usable = #{record.usable,jdbcType=CHAR},
+      createdate = #{record.createdate,jdbcType=TIMESTAMP},
+      delflag = #{record.delflag,jdbcType=CHAR},
+      sortflag = #{record.sortflag,jdbcType=CHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ytgrading.dto.IndexImages" >
+    update index_images
+    <set >
+      <if test="path != null" >
+        path = #{path,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null" >
+        url = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="imagestype != null" >
+        imagestype = #{imagestype,jdbcType=CHAR},
+      </if>
+      <if test="usable != null" >
+        usable = #{usable,jdbcType=CHAR},
+      </if>
+      <if test="createdate != null" >
+        createdate = #{createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="delflag != null" >
+        delflag = #{delflag,jdbcType=CHAR},
+      </if>
+      <if test="sortflag != null" >
+        sortflag = #{sortflag,jdbcType=CHAR},
+      </if>
+      <if test="sortflag != null" >
+        imagestitle = #{imagestitle,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ytgrading.dto.IndexImages" >
+    update index_images
+    set path = #{path,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      imagestype = #{imagestype,jdbcType=CHAR},
+      usable = #{usable,jdbcType=CHAR},
+      createdate = #{createdate,jdbcType=TIMESTAMP},
+      delflag = #{delflag,jdbcType=CHAR},
+      sortflag = #{sortflag,jdbcType=CHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.BillMapper">
+
+	<select id="selectBillDetail" resultType="com.ytgrading.bean.Review"
+		parameterType="java.lang.String">
+		select rd.coinid, rd.amount,sbbi.evaluate,rd.evaluate
+		guestappraisal,rd.score,rd.remark,rd.numindex,rd.totalreqcost,rd.totalevaluate,
+		rd.amountofissue,rd.guestappraisal,rd.wmk,rd.whetherSample,rd.blockNum,sbbi.years,rd.whetherSeries,box.money
+		as boxCost,
+		sbbi.fullsubject,sbbi.fullsubject,sbbi.shortsubject,sbbi.facevaluedis,st.shortname
+		as guojia,rd.version
+		from request_detail rd,sys_bill_basic_info
+		sbbi,sys_country st,sys_box_basic_info box
+		where rd.coinid= sbbi.id
+		and
+		sbbi.country = st.id
+		AND box.id=sbbi.boxid
+		and rd.requestid
+		=#{id,jdbcType=VARCHAR}
+		ORDER BY rd.numindex
+	</select>
+	
+	<select id="getBillInfoByCode" resultType="com.ytgrading.bean.CoinInfo">
+		SELECT rc.id, rc.coincode,sbbi.years,sc.shortname as
+		guojia,sbbi.fullsubject,sbbi.facevaluedis,rc.customSize,
+		rc.blockNum,sbbi.size,sbbi.shading,sbbi.placenames,sbbi.sign,rc.difversion
+		as version,rd.wmk,rc.remark as coinremark,
+		(CASE WHEN r.serviceid = 1
+		THEN '新评' WHEN r.serviceid = 2 THEN '重评' WHEN r.serviceid = 5 THEN
+		'真品鉴定' END )
+		serviceid,rd.requestid,rcs.level,rc.score,rc.ratingreasondis,rc.difversioncode,
+		rc.whetherSample from request_coin rc left join request_coin_score rcs
+		on rcs.requestcoinid=rc.id,
+		request_detail rd,sys_bill_basic_info
+		sbbi,sys_country sc,request_main r
+		where rd.id=rc.requestdetailid
+		AND
+		sbbi.country=sc.id
+		AND rd.coinid=sbbi.id
+		AND rd.requestid=r.id
+		AND rc.coincode=#{coincode,jdbcType=VARCHAR}
+		ORDER BY
+		rc.coincode
+	</select>
+	<select id="getBillInfo" resultType="com.ytgrading.bean.CoinInfo">
+		SELECT rc.id, rc.coincode,sbbi.years,sc.shortname as
+		guojia,sbbi.fullsubject,sbbi.facevaluedis,rc.customSize,
+		rc.blockNum,sbbi.size,sbbi.shading,sbbi.placenames,sbbi.sign,rc.difversion
+		as version,rd.wmk,rc.remark as coinremark,
+		rd.requestid,rcs.level,rc.score,rc.ratingreasondis,rc.difversioncode,
+		rc.whetherSample from request_coin rc left join request_coin_score rcs
+		on rcs.requestcoinid=rc.id,
+		request_detail rd,sys_bill_basic_info
+		sbbi,sys_country sc,request_main r
+		where rd.id=rc.requestdetailid
+		AND
+		sbbi.country=sc.id
+		AND rd.coinid=sbbi.id
+		AND rd.requestid=r.id
+		AND rc.id=#{requestcoinid,jdbcType=VARCHAR}
+		group by rc.coincode
+	</select>
+	<select id="getStatementBillListByReqCode" resultType="com.ytgrading.bean.Statement"
+		parameterType="java.lang.Integer">
+		SELECT r.entitytype,r.requestcode,rc.coincode,rc.tagindex,rc.remark,rc.ratingreasondis,
+		rd.evaluate,rd.numindex,r.usercode,r.customer,r.mobile,
+		r.mail,r.serviceid,r.speed,r.totalamount,r.totalweight,r.totalpreferential,r.othercost,
+		r.totalevaluate,r.totalreqcost,r.totalpremium,r.totaltransportation,
+		r.totalinsurance,r.totalcost,r.sendtype,r.payment, rc.score,
+		ExtractValue(co.fullname, "//value[@lang='zh_CN']") as country,
+		ExtractValue(p.name, "//value[@lang='zh_CN']") as province,
+		ExtractValue(c.fullname, "//value[@lang='zh_CN']") as city,
+		ExtractValue(d.fullname, "//value[@lang='zh_CN']") as area,
+		ExtractValue(co1.fullname, "//value[@lang='zh_CN']") as coincountry,
+		r.address,r.paystatus,rd.guestappraisal,rd.totalreqcost as
+		totalcoincost,
+		rd.coinid,num.gpn as sameCoinNum
+		FROM (SELECT rc1.coincode as coincode,rc1.coinid as cid,count(*) as gpn
+		FROM request_coin rc1
+		LEFT JOIN request_detail rd1 ON rc1.requestid = rd1.requestid AND
+		rc1.coinid = rd1.coinid
+		LEFT JOIN request_main r1 ON rc1.requestid = r1.id
+		LEFT JOIN sys_bill_basic_info sbbi ON rc1.coinid = sbbi.id
+		WHERE r1.requestcode =#{requestcode,jdbcType=INTEGER} group by rc1.coinid)
+		num,request_coin rc
+		LEFT JOIN request_detail rd ON rc.requestid = rd.requestid AND rc.coinid =
+		rd.coinid
+		LEFT JOIN request_main r ON rc.requestid = r.id
+		LEFT JOIN sys_country co ON r.country = co.id
+		LEFT JOIN sys_province p ON r.province = p.id
+		LEFT JOIN sys_city c ON r.city = c.id
+		LEFT JOIN sys_district d ON r.area = d.id
+		LEFT JOIN sys_bill_basic_info sbbi ON rc.coinid = sbbi.id
+		LEFT JOIN sys_country co1 on co1.id=sbbi.country
+		WHERE r.requestcode =#{requestcode,jdbcType=INTEGER}
+		AND num.cid=rd.coinid
+		ORDER BY coincode ASC
+	</select>
+	<select id="getBillData" parameterType="com.ytgrading.bean.Entityview"
+		resultType="com.ytgrading.bean.SysBillBasicInfo">
+		SELECT sbbi.id,
+		catalogue,billnum,sdbti.bill_type_name,reign,years,c.shortname as
+		guojia,bank,fullsubject,size,remarks,
+		shortsubject,facevaluedis,wmk,placenames,sign,version,pattern,shading,color,printingcompany,evaluate,box.money
+		as boxCost,
+		CONCAT_WS('',sdbti.bill_type_name,reign,years,c.shortname,bank,fullsubject,commonlysubject,
+		shortsubject,facevaluedis,wmk,placenames,sign,version,pattern,shading,color,printingcompany)
+		from sys_bill_basic_info sbbi,sys_dictionary_bill_type_info sdbti,
+		sys_country c,sys_box_basic_info box
+		where
+		sdbti.bill_type_code=sbbi.billtype
+		and c.id=sbbi.country
+		and box.id=sbbi.boxid
+		<if test="years != null and years != ''">
+			and sbbi.years like CONCAT("%",#{years},"%")
+		</if>
+		<if test="country != null and country != ''">
+			and sbbi.country
+			=#{country}
+		</if>
+		<if test="facevaluedis != null and facevaluedis != ''">
+			and
+			sbbi.facevaluedis like CONCAT("%",#{facevaluedis},"%")
+		</if>
+		<if test="version != null and version != ''">
+			and sbbi.version like
+			CONCAT("%",#{version},"%")
+		</if>
+		<if test="wmk != null and wmk != ''">
+			and sbbi.wmk like
+			CONCAT("%",#{wmk},"%")
+		</if>
+		<if test="fullname != null and fullname != ''">
+			<foreach item="item" index="index" collection="fullname">
+				and
+				CONCAT_WS('',sdbti.bill_type_name,reign,years,c.fullname,bank,fullsubject,commonlysubject,
+				shortsubject,facevaluedis,wmk,placenames,sign,version,pattern,shading,color,printingcompany)
+				like CONCAT("%",#{item},"%")
+			</foreach>
+		</if>
+		<if test="billnum != null and billnum != ''">
+			and sbbi.billnum
+			=#{billnum}
+		</if>
+		<if test="placenames != null and placenames != ''">
+			and
+			sbbi.placenames like CONCAT("%",#{placenames},"%")
+		</if>
+		<if test="sign != null and sign != ''">
+			and sbbi.sign like
+			CONCAT("%",#{sign},"%")
+		</if>
+		<if test="pattern != null and pattern != ''">
+			and sbbi.pattern like
+			CONCAT("%",#{pattern},"%")
+		</if>
+		<if test="color != null and color != ''">
+			and sbbi.color like
+			CONCAT("%",#{color},"%")
+		</if>
+		limit #{startRow},15
+	</select>
+
+	<select id="selectBillScores" parameterType="java.lang.String"
+		resultType="com.ytgrading.bean.SearchScore">
+		SELECT rc.id,rc.coincode,sbbi.years,sc.shortname as
+		guojia,sbbi.fullsubject,sbbi.facevaluedis,
+		rc.blockNum,sbbi.size,sbbi.shading,sbbi.placenames,sbbi.sign,rc.difversion,rd.wmk,
+		rcs.score,rcs.scoreby,rcs.`level`,rcs.remark,rc.remark as
+		pubremark,rcs.ratingreasondis,
+		rc.whetherSample from request_coin rc
+		LEFT JOIN request_coin_score rcs on rcs.requestcoinid=rc.id and
+		rcs.scoreby=#{scoreby} AND `level`='1',
+		request_detail rd,sys_bill_basic_info sbbi,
+		sys_country sc
+		where
+		rd.id=rc.requestdetailid
+		AND sbbi.country=sc.id
+		AND rd.coinid=sbbi.id
+		AND rc.requestid=#{requestid}
+		ORDER BY rc.coincode
+	</select>
+	<select id="selectSecondBillScores" parameterType="java.lang.String"
+		resultType="com.ytgrading.bean.SearchScore">
+		SELECT rc.id,rc.coincode,sbbi.years,sc.shortname as
+		guojia,sbbi.fullsubject,sbbi.facevaluedis,
+		rc.blockNum,sbbi.size,sbbi.shading,sbbi.placenames,sbbi.sign,rc.difversion,rd.wmk,
+		rcs.score,rcs.scoreby,rcs.`level`,rcs.remark,rc.remark as
+		pubremark,rcs.ratingreasondis,
+		rc.whetherSample from request_coin rc
+		LEFT JOIN request_coin_score rcs on rcs.requestcoinid=rc.id,
+		request_detail rd,sys_bill_basic_info sbbi,
+		sys_country sc
+		where
+		rd.id=rc.requestdetailid
+		AND sbbi.country=sc.id
+		AND rd.coinid=sbbi.id
+		AND rc.requestid=#{requestid}
+		ORDER BY
+		rc.coincode,rcs.level,rcs.scoreby
+	</select>
+
+	<select id="selectBills" parameterType="java.lang.String"
+		resultType="com.ytgrading.bean.RequestCoinBean">
+		SELECT rc.id,rc.coincode,sbbi.years,sc.shortname as
+		guojia,sbbi.fullsubject,sbbi.facevaluedis,rc.blockNum,rc.score,rc.ratingreasondis,
+		rc.difversion as version,rd.wmk,rc.whetherSample from request_coin rc,
+		request_detail rd,sys_bill_basic_info sbbi,sys_country sc
+		where rd.id=rc.requestdetailid
+		AND sbbi.country=sc.id
+		AND rd.coinid=sbbi.id
+		AND rd.requestid = #{requestid}
+		ORDER BY rc.coincode
+	</select>
+	<select id="getChartBills" resultType="com.ytgrading.bean.CoinChart">
+		SELECT
+		c.years,
+		c.catalogue,
+		c.shortsubject,
+		c.version,
+		c.facevaluedis,
+		ExtractValue (
+		t.fullname,
+		"//value[@lang='zh_CN']"
+		) AS country,
+		rc.score,
+		rc.coincode,
+		rc.difversion,
+		rc.ratingreasondis
+		FROM
+		sys_bill_basic_info c,
+		sys_country t,
+		request_coin rc
+		WHERE
+		rc.coincode LIKE CONCAT(#{requestCode}, '%')
+		AND rc.coinid = c.id
+		AND t.id =
+		c.country
+		ORDER BY
+		coincode
+	</select>
+	<select id="getPrintData" resultType="com.ytgrading.bean.CoinChart">
+		SELECT
+		c.years,
+		c.catalogue,
+		c.billnum,
+		c.shortsubject,
+		c.fullsubject,
+		c.version,
+		c.facevaluedis,
+		c.size,
+		c.wmk,
+		c.bank,
+		ExtractValue (
+		t.fullname,
+		"//value[@lang='zh_CN']"
+		) country,
+		c.sign,
+		rc.score,
+		rc.coincode,
+		rc.difversioncode,
+		c.printingcompany,
+		c.placenames,
+		rc.difversion,
+		rc.ratingreasondis,
+		rc.blocknum,
+		c.printingcompany
+		FROM
+		sys_bill_basic_info c,
+		sys_country t,
+		request_coin rc
+		WHERE
+		rc.coincode LIKE CONCAT(#{requestCode}, '%')
+		AND rc.coinid = c.id
+		AND t.id =
+		c.country
+		ORDER BY
+		coincode
+	</select>
+	<select id="getPrintDataBack" resultType="com.ytgrading.bean.CoinChart">
+		SELECT
+		c.years,
+		c.catalogue,
+		c.billnum,
+		c.enshortsubject shortsubject,
+		c.enfullsubject fullsubject,
+		c.enversion version,
+		c.enfacevaluedis facevaluedis,
+		c.size,
+		c.enwmk wmk,
+		c.enbank bank,
+		ExtractValue (
+		t.fullname,
+		"//value[@lang='en_US']"
+		) country,
+		c.ensign sign,
+		rc.score,
+		rc.coincode,
+		rc.difversioncode,
+		"" printingcompany,
+		c.enplacenames placenames,
+		rc.difversion,
+		rc.ratingreasondis,
+		rc.blocknum,
+		c.printingcompany,
+		(
+		SELECT
+		rr.reasonname_us
+		FROM
+		request_bill_net_reason_data nr,
+		rating_reason rr
+		WHERE
+		rr.Id = nr.netreasoncode
+		AND nr.netreasoncode != 1000
+		AND nr.requestcoinid = rc.id
+		LIMIT 1
+		) netreason
+		FROM
+		sys_bill_basic_info c,
+		sys_country t,
+		request_coin rc
+		WHERE
+		rc.coincode LIKE CONCAT(#{requestCode}, '%')
+		AND rc.coinid = c.id
+		AND t.id =
+		c.country
+		ORDER BY
+		coincode
+	</select>
+</mapper>

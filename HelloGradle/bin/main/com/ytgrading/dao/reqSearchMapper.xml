@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.reqSearchMapper">
+	<select id="selectAllreqsearch" resultType="com.ytgrading.bean.ReqSearchBean"
+		parameterType="com.ytgrading.bean.ReqSearchBean">
+		select
+		re.requestcode,re.applytime,re.requesttime,re.duetime,re.totalamount,
+		re.internalstates,re.requeststatus,re.customer,
+		re.usercode,re.receivermobile,re.packagecode,re.remark,re.delflag,
+		u.name as username,re.sendtype,
+		(
+		CASE
+		WHEN re.paystatus = '1'
+		THEN IFNULL(
+		(SELECT
+		DATE_FORMAT(
+		MAX(p.createdate),
+		'%Y-%m-%d'
+		)
+		FROM
+		pay_journal p
+		WHERE FIND_IN_SET(re.requestcode,p.requestcode )),
+		"已支付"
+		)
+		ELSE "--"
+		END
+		) payinfo,re.entitytype from request_main re
+		LEFT JOIN user u ON re.usercode=u.usercode
+		where re.delflag!='2'
+		<if test="roleId != '11'">
+			and re.requeststatus not in (-1)
+		</if>
+		<if test="requestcode!= null and requestcode!= ''">
+			and re.requestcode=#{requestcode,jdbcType=VARCHAR}
+		</if>
+		<if test="customer!= null and customer!= ''">
+			and re.customer=#{customer,jdbcType=VARCHAR}
+		</if>
+		<if test="receiverMobile!= null and receiverMobile!= ''">
+			and re.receiverMobile=#{receiverMobile,jdbcType=VARCHAR}
+		</if>
+		<if test="internalStates!= null and internalStates!= ''">
+			and re.internalStates=#{internalStates,jdbcType=VARCHAR}
+		</if>
+		<if test="requestStatus!= null and requestStatus!= ''">
+			<if test="requestStatus=='del_1'">
+				and re.delflag='1'
+			</if>
+			<if test="requestStatus!='del_1'">
+				and re.delflag='0'
+				and re.requestStatus=#{requestStatus,jdbcType=VARCHAR}
+			</if>
+		</if>
+		<if test="usercode!= null and usercode!= ''">
+			and re.usercode=#{usercode,jdbcType=INTEGER}
+		</if>
+
+		<if test="applyTimeK != null and applyTimeK != ''">
+			AND re.applytime &gt;= #{applyTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="applyTimeJ != null and applyTimeJ != ''">
+			AND date_sub(re.applytime, interval 1 day) &lt;
+			#{applyTimeJ,jdbcType=TIMESTAMP}
+		</if>
+		<if test="requestTimeK != null and requestTimeK != ''">
+			AND re.requesttime &gt;= #{requestTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="requestTimeJ != null and requestTimeJ != ''">
+			AND date_sub(re.requesttime, interval 1 day) &lt;
+			#{requestTimeJ,jdbcType=TIMESTAMP}
+		</if>
+		<if test="entitytype != null and entitytype != ''">
+			AND re.entitytype =#{entitytype,jdbcType=VARCHAR}
+		</if>
+		ORDER BY re.applytime DESC
+		LIMIT #{page,jdbcType=INTEGER} , #{pagesize,jdbcType=INTEGER}
+	</select>
+
+	<select id="getreqsearchListCountById" resultType="java.lang.Integer">
+		select COUNT(*) from request_main as re where 1=1 and re.delflag!='2'
+		<if test="requestcode!= null and requestcode!= ''">
+			and re.requestcode=#{requestcode,jdbcType=VARCHAR}
+		</if>
+		<if test="roleId != '11'">
+			and re.requeststatus not in (-1)
+		</if>
+		<if test="customer!= null and customer!= ''">
+			and re.customer=#{customer,jdbcType=VARCHAR}
+		</if>
+		<if test="receiverMobile!= null and receiverMobile!= ''">
+			and re.receiverMobile=#{receiverMobile,jdbcType=VARCHAR}
+		</if>
+		<if test="internalStates!= null and internalStates!= ''">
+			and re.internalStates=#{internalStates,jdbcType=VARCHAR}
+		</if>
+		<if test="requestStatus!= null and requestStatus!= ''">
+			<if test="requestStatus=='del_1'">
+				and re.delflag='1'
+			</if>
+			<if test="requestStatus!='del_1'">
+				and re.delflag='0'
+				and re.requestStatus=#{requestStatus,jdbcType=VARCHAR}
+			</if>
+		</if>
+		<if test="usercode!= null and usercode!= ''">
+			and re.usercode=#{usercode,jdbcType=INTEGER}
+		</if>
+
+		<if test="applyTimeK != null and applyTimeK != ''">
+			AND re.applytime &gt;= #{applyTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="applyTimeJ != null and applyTimeJ != ''">
+			AND date_sub(re.applytime, interval 1 day) &lt;
+			#{applyTimeJ,jdbcType=TIMESTAMP}
+		</if>
+
+		<if test="requestTimeK != null and requestTimeK != ''">
+			AND re.requesttime &gt;= #{requestTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="requestTimeJ != null and requestTimeJ != ''">
+			AND date_sub(re.requesttime, interval 1 day) &lt;
+			#{requestTimeJ,jdbcType=TIMESTAMP}
+		</if>
+		<if test="entitytype != null and entitytype != ''">
+			AND re.entitytype =#{entitytype,jdbcType=VARCHAR}
+		</if>
+	</select>
+
+	<select id="selectLackreqsearch" resultType="com.ytgrading.bean.ReqSearchBean"
+		parameterType="com.ytgrading.bean.ReqSearchBean">
+		select
+		re.requestcode,re.applytime,re.requesttime,re.duetime,re.totalamount,
+		re.internalstates,re.requeststatus,re.customer,
+		re.usercode,re.receivermobile,re.packagecode,re.remark,re.delflag,
+		u.name as username,
+		(
+		CASE
+		WHEN re.paystatus = '1'
+		THEN IFNULL(
+		(SELECT
+		DATE_FORMAT(
+		MAX(p.createdate),
+		'%Y-%m-%d %H:%i:%S'
+		)
+		FROM
+		pay_journal p
+		WHERE FIND_IN_SET(p.requestcode, re.requestcode)),
+		"已支付"
+		)
+		ELSE "--"
+		END
+		) payinfo,re.entitytype from request_main re
+		LEFT JOIN user u ON re.usercode=u.usercode
+		where re.delflag!='2' 
+		AND re.`internalstates`&gt;=3 
+		AND re.`internalstates`&lt;=14
+		AND re.`internalstates` !=12
+		<if test="requestcode!= null and requestcode!= ''">
+			and re.requestcode=#{requestcode,jdbcType=VARCHAR}
+		</if>
+		<if test="customer!= null and customer!= ''">
+			and re.customer=#{customer,jdbcType=VARCHAR}
+		</if>
+		<if test="receiverMobile!= null and receiverMobile!= ''">
+			and re.receiverMobile=#{receiverMobile,jdbcType=VARCHAR}
+		</if>
+		<if test="internalStates!= null and internalStates!= ''">
+			and re.internalStates=#{internalStates,jdbcType=VARCHAR}
+		</if>
+		<if test="requestStatus!= null and requestStatus!= ''">
+			<if test="requestStatus=='del_1'">
+				and re.delflag='1'
+			</if>
+			<if test="requestStatus!='del_1'">
+				and re.delflag='0'
+				and re.requestStatus=#{requestStatus,jdbcType=VARCHAR}
+			</if>
+		</if>
+		<if test="usercode!= null and usercode!= ''">
+			and re.usercode=#{usercode,jdbcType=INTEGER}
+		</if>
+
+		<if test="applyTimeK != null and applyTimeK != ''">
+			AND re.applytime &gt;= #{applyTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="applyTimeJ != null and applyTimeJ != ''">
+			AND date_sub(re.applytime, interval 1 day) &lt;
+			#{applyTimeJ,jdbcType=TIMESTAMP}
+		</if>
+		<if test="requestTimeK != null and requestTimeK != ''">
+			AND re.requesttime &gt;= #{requestTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="requestTimeJ != null and requestTimeJ != ''">
+			AND date_sub(re.requesttime, interval 1 day) &lt;
+			#{requestTimeJ,jdbcType=TIMESTAMP}
+		</if>
+		<if test="entitytype != null and entitytype != ''">
+			AND re.entitytype =#{entitytype,jdbcType=VARCHAR}
+		</if>
+		ORDER BY re.requesttime ASC
+		LIMIT #{page,jdbcType=INTEGER} , #{pagesize,jdbcType=INTEGER}
+	</select>
+
+	<select id="getreqsearchLackListCountById" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM request_main AS re WHERE 1=1
+		AND re.delflag!='2' 
+		AND re.`internalstates`&gt;=3 
+		AND re.`internalstates`&lt;=14
+		AND re.`internalstates` !=12
+		
+		<if test="requestcode!= null and requestcode!= ''">
+			and re.requestcode=#{requestcode,jdbcType=VARCHAR}
+		</if>
+		<if test="customer!= null and customer!= ''">
+			and re.customer=#{customer,jdbcType=VARCHAR}
+		</if>
+		<if test="receiverMobile!= null and receiverMobile!= ''">
+			and re.receiverMobile=#{receiverMobile,jdbcType=VARCHAR}
+		</if>
+		<if test="internalStates!= null and internalStates!= ''">
+			and re.internalStates=#{internalStates,jdbcType=VARCHAR}
+		</if>
+		<if test="requestStatus!= null and requestStatus!= ''">
+			and re.requestStatus=#{requestStatus,jdbcType=VARCHAR}
+		</if>
+		<if test="usercode!= null and usercode!= ''">
+			and re.usercode=#{usercode,jdbcType=INTEGER}
+		</if>
+
+		<if test="applyTimeK != null and applyTimeK != ''">
+			AND re.applytime &gt;= #{applyTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="applyTimeJ != null and applyTimeJ != ''">
+			AND date_sub(re.applytime, interval 1 day) &lt;
+			#{applyTimeJ,jdbcType=TIMESTAMP}
+		</if>
+
+		<if test="requestTimeK != null and requestTimeK != ''">
+			AND re.requesttime &gt;= #{requestTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="requestTimeJ != null and requestTimeJ != ''">
+			AND date_sub(re.requesttime, interval 1 day) &lt;
+			#{requestTimeJ,jdbcType=TIMESTAMP}
+		</if>
+		<if test="entitytype != null and entitytype != ''">
+			AND re.entitytype =#{entitytype,jdbcType=VARCHAR}
+		</if>
+	</select>
+	
+	<select id="selectServicereqsearch" resultType="com.ytgrading.bean.ReqSearchBean"
+		parameterType="com.ytgrading.bean.ReqSearchBean">
+		select
+		re.requestcode,re.applytime,re.requesttime,re.duetime,re.totalamount,
+		re.internalstates,re.requeststatus,re.customer,
+		re.usercode,re.receivermobile,re.packagecode,re.remark,re.delflag,
+		u.name as username,
+		(
+		CASE
+		WHEN re.paystatus = '1'
+		THEN IFNULL(
+		(SELECT
+		DATE_FORMAT(
+		MAX(p.createdate),
+		'%Y-%m-%d %H:%i:%S'
+		)
+		FROM
+		pay_journal p
+		WHERE FIND_IN_SET(p.requestcode, re.requestcode)),
+		"已支付"
+		)
+		ELSE "--"
+		END
+		) payinfo,re.entitytype from request_main re
+		LEFT JOIN user u ON re.usercode=u.usercode
+		where re.delflag!='2' AND
+		re.`requeststatus`&gt;1 AND re.`requeststatus`&lt;8
+		<if test="requestcode!= null and requestcode!= ''">
+			and re.requestcode=#{requestcode,jdbcType=VARCHAR}
+		</if>
+		<if test="customer!= null and customer!= ''">
+			and re.customer=#{customer,jdbcType=VARCHAR}
+		</if>
+		<if test="receiverMobile!= null and receiverMobile!= ''">
+			and re.receiverMobile=#{receiverMobile,jdbcType=VARCHAR}
+		</if>
+		<if test="internalStates!= null and internalStates!= ''">
+			and re.internalStates=#{internalStates,jdbcType=VARCHAR}
+		</if>
+		<if test="requestStatus!= null and requestStatus!= ''">
+			<if test="requestStatus=='del_1'">
+				and re.delflag='1'
+			</if>
+			<if test="requestStatus!='del_1'">
+				and re.delflag='0'
+				and re.requestStatus=#{requestStatus,jdbcType=VARCHAR}
+			</if>
+		</if>
+		<if test="usercode!= null and usercode!= ''">
+			and re.usercode=#{usercode,jdbcType=INTEGER}
+		</if>
+
+		<if test="applyTimeK != null and applyTimeK != ''">
+			AND re.applytime &gt;= #{applyTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="applyTimeJ != null and applyTimeJ != ''">
+			AND date_sub(re.applytime, interval 1 day) &lt;
+			#{applyTimeJ,jdbcType=TIMESTAMP}
+		</if>
+		<if test="requestTimeK != null and requestTimeK != ''">
+			AND re.requesttime &gt;= #{requestTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="requestTimeJ != null and requestTimeJ != ''">
+			AND date_sub(re.requesttime, interval 1 day) &lt;
+			#{requestTimeJ,jdbcType=TIMESTAMP}
+		</if>
+		<if test="entitytype != null and entitytype != ''">
+			AND re.entitytype =#{entitytype,jdbcType=VARCHAR}
+		</if>
+		ORDER BY re.applytime DESC
+		LIMIT #{page,jdbcType=INTEGER} , #{pagesize,jdbcType=INTEGER}
+	</select>
+
+	<select id="getreqsearchServiceListCountById" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM request_main AS re WHERE 1=1 AND re.delflag!='2' AND
+		re.`requeststatus`&gt;1 AND re.`requeststatus`&lt;8
+		<if test="requestcode!= null and requestcode!= ''">
+			and re.requestcode=#{requestcode,jdbcType=VARCHAR}
+		</if>
+		<if test="customer!= null and customer!= ''">
+			and re.customer=#{customer,jdbcType=VARCHAR}
+		</if>
+		<if test="receiverMobile!= null and receiverMobile!= ''">
+			and re.receiverMobile=#{receiverMobile,jdbcType=VARCHAR}
+		</if>
+		<if test="internalStates!= null and internalStates!= ''">
+			and re.internalStates=#{internalStates,jdbcType=VARCHAR}
+		</if>
+		<if test="requestStatus!= null and requestStatus!= ''">
+			and re.requestStatus=#{requestStatus,jdbcType=VARCHAR}
+		</if>
+		<if test="usercode!= null and usercode!= ''">
+			and re.usercode=#{usercode,jdbcType=INTEGER}
+		</if>
+
+		<if test="applyTimeK != null and applyTimeK != ''">
+			AND re.applytime &gt;= #{applyTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="applyTimeJ != null and applyTimeJ != ''">
+			AND date_sub(re.applytime, interval 1 day) &lt;
+			#{applyTimeJ,jdbcType=TIMESTAMP}
+		</if>
+
+		<if test="requestTimeK != null and requestTimeK != ''">
+			AND re.requesttime &gt;= #{requestTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="requestTimeJ != null and requestTimeJ != ''">
+			AND date_sub(re.requesttime, interval 1 day) &lt;
+			#{requestTimeJ,jdbcType=TIMESTAMP}
+		</if>
+		<if test="entitytype != null and entitytype != ''">
+			AND re.entitytype =#{entitytype,jdbcType=VARCHAR}
+		</if>
+	</select>
+	
+	<select id="getStatisticalInfo" resultType="java.lang.String"
+		parameterType="com.ytgrading.bean.ReqSearchBean">
+		SELECT
+		CONCAT(
+		"申请单数量：",
+		CONVERT (COUNT(*), CHAR),
+		"，鉴评数量：",
+		sum(totalamount),
+		"，总费用：",
+		SUM(totalcost)
+		) rtnStr
+		FROM
+		request_main AS re
+		WHERE 1 = 1 
+		<if test="requestcode!= null and requestcode!= ''">
+			and re.requestcode=#{requestcode,jdbcType=VARCHAR}
+		</if>
+		and re.requeststatus not in (-1,-2)
+		<if test="customer!= null and customer!= ''">
+			and re.customer=#{customer,jdbcType=VARCHAR}
+		</if>
+		<if test="receiverMobile!= null and receiverMobile!= ''">
+			and re.receiverMobile=#{receiverMobile,jdbcType=VARCHAR}
+		</if>
+		<if test="internalStates!= null and internalStates!= ''">
+			and re.internalStates=#{internalStates,jdbcType=VARCHAR}
+		</if>
+		<if test="requestStatus!= null and requestStatus!= ''">
+			and re.requestStatus=#{requestStatus,jdbcType=VARCHAR}
+		</if>
+		<if test="usercode!= null and usercode!= ''">
+			and re.usercode=#{usercode,jdbcType=INTEGER}
+		</if>
+
+		<if test="applyTimeK != null and applyTimeK != ''">
+			AND re.applytime &gt;= #{applyTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="applyTimeJ != null and applyTimeJ != ''">
+			AND date_sub(re.applytime, interval 1 day) &lt;
+			#{applyTimeJ,jdbcType=TIMESTAMP}
+		</if>
+
+		<if test="requestTimeK != null and requestTimeK != ''">
+			AND re.requesttime &gt;= #{requestTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="requestTimeJ != null and requestTimeJ != ''">
+			AND date_sub(re.requesttime, interval 1 day) &lt;
+			#{requestTimeJ,jdbcType=TIMESTAMP}
+		</if>
+		<if test="entitytype != null and entitytype != ''">
+			AND re.entitytype =#{entitytype,jdbcType=VARCHAR}
+		</if>
+	</select>
+	<select id="getStatisticalLackInfo" resultType="java.lang.String"
+		parameterType="com.ytgrading.bean.ReqSearchBean">
+		SELECT
+		CONCAT(
+		"申请单数量：",
+		CONVERT (COUNT(*), CHAR),
+		"，鉴评数量：",
+		sum(totalamount)
+		) rtnStr
+		FROM
+		request_main AS re
+		WHERE
+		1 = 1 and re.delflag!='2' AND re.delflag!='1' AND
+		re.`internalstates`&gt;=3 AND re.`internalstates`&lt;12
+		<if test="requestcode!= null and requestcode!= ''">
+			and re.requestcode=#{requestcode,jdbcType=VARCHAR}
+		</if>
+		<if test="customer!= null and customer!= ''">
+			and re.customer=#{customer,jdbcType=VARCHAR}
+		</if>
+		<if test="receiverMobile!= null and receiverMobile!= ''">
+			and re.receiverMobile=#{receiverMobile,jdbcType=VARCHAR}
+		</if>
+		<if test="internalStates!= null and internalStates!= ''">
+			and re.internalStates=#{internalStates,jdbcType=VARCHAR}
+		</if>
+		<if test="requestStatus!= null and requestStatus!= ''">
+			and re.requestStatus=#{requestStatus,jdbcType=VARCHAR}
+		</if>
+		<if test="usercode!= null and usercode!= ''">
+			and re.usercode=#{usercode,jdbcType=INTEGER}
+		</if>
+
+		<if test="applyTimeK != null and applyTimeK != ''">
+			AND re.applytime &gt;= #{applyTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="applyTimeJ != null and applyTimeJ != ''">
+			AND date_sub(re.applytime, interval 1 day) &lt;
+			#{applyTimeJ,jdbcType=TIMESTAMP}
+		</if>
+
+		<if test="requestTimeK != null and requestTimeK != ''">
+			AND re.requesttime &gt;= #{requestTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="requestTimeJ != null and requestTimeJ != ''">
+			AND date_sub(re.requesttime, interval 1 day) &lt;
+			#{requestTimeJ,jdbcType=TIMESTAMP}
+		</if>
+		<if test="entitytype != null and entitytype != ''">
+			AND re.entitytype =#{entitytype,jdbcType=VARCHAR}
+		</if>
+		</select>
+		
+		<select id="getStatisticalServiceInfo" resultType="java.lang.String"
+		parameterType="com.ytgrading.bean.ReqSearchBean">
+		SELECT
+		CONCAT(
+		"申请单数量：",
+		CONVERT (COUNT(*), CHAR),
+		"，鉴评数量：",
+		sum(totalamount)
+		) rtnStr
+		FROM
+		request_main AS re
+		WHERE
+		1 = 1 and re.delflag!='2' AND re.delflag!='1' AND
+		re.`requeststatus`&gt;1 AND re.`requeststatus`&lt;8
+		<if test="requestcode!= null and requestcode!= ''">
+			and re.requestcode=#{requestcode,jdbcType=VARCHAR}
+		</if>
+		<if test="customer!= null and customer!= ''">
+			and re.customer=#{customer,jdbcType=VARCHAR}
+		</if>
+		<if test="receiverMobile!= null and receiverMobile!= ''">
+			and re.receiverMobile=#{receiverMobile,jdbcType=VARCHAR}
+		</if>
+		<if test="internalStates!= null and internalStates!= ''">
+			and re.internalStates=#{internalStates,jdbcType=VARCHAR}
+		</if>
+		<if test="requestStatus!= null and requestStatus!= ''">
+			and re.requestStatus=#{requestStatus,jdbcType=VARCHAR}
+		</if>
+		<if test="usercode!= null and usercode!= ''">
+			and re.usercode=#{usercode,jdbcType=INTEGER}
+		</if>
+
+		<if test="applyTimeK != null and applyTimeK != ''">
+			AND re.applytime &gt;= #{applyTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="applyTimeJ != null and applyTimeJ != ''">
+			AND date_sub(re.applytime, interval 1 day) &lt;
+			#{applyTimeJ,jdbcType=TIMESTAMP}
+		</if>
+
+		<if test="requestTimeK != null and requestTimeK != ''">
+			AND re.requesttime &gt;= #{requestTimeK,jdbcType=TIMESTAMP}
+		</if>
+		<if test="requestTimeJ != null and requestTimeJ != ''">
+			AND date_sub(re.requesttime, interval 1 day) &lt;
+			#{requestTimeJ,jdbcType=TIMESTAMP}
+		</if>
+		<if test="entitytype != null and entitytype != ''">
+			AND re.entitytype =#{entitytype,jdbcType=VARCHAR}
+		</if>
+		</select>
+</mapper>

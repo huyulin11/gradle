@@ -1,0 +1,681 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.MemberMapper">
+	<resultMap id="UserMap" type="com.ytgrading.dto.Users">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="usercode" property="usercode" jdbcType="INTEGER" />
+		<result column="registerdate" property="registerdate" jdbcType="TIMESTAMP" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="birthday" property="birthday" jdbcType="VARCHAR" />
+		<result column="documenttype" property="documenttype" jdbcType="CHAR" />
+		<result column="documentcode" property="documentcode" jdbcType="VARCHAR" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+		<result column="rate" property="rate" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="delflag" property="delflag" jdbcType="CHAR" />
+		<result column="defaultmail" property="defaultmail" jdbcType="VARCHAR" />
+		<result column="defaulttel" property="defaulttel" jdbcType="VARCHAR" />
+		<result column="defaultmobile" property="defaultmobile" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="User_Column_List">
+		id, usercode, registerdate, title, remark, birthday,
+		documenttype,
+		documentcode,
+		password, rate, name, delflag, defaultmail,
+		defaulttel,
+		defaultmobile
+	</sql>
+	
+	<select id="selectByPrimaryKey" resultMap="UserMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="User_Column_List" />
+		from user
+		where id = #{id,jdbcType=VARCHAR}
+	</select>
+
+	<select id="count" parameterType="com.ytgrading.dto.Request"
+		resultType="java.lang.Integer">
+		select count(*) from request_main where
+		userid=#{userid} and
+		requeststatus=#{requeststatus}
+		and delflag = 0
+	</select>
+
+	<select id="allCount" parameterType="hashMap" resultType="java.lang.Integer">
+		select
+		count(*) from request_main where userid=#{userid} and
+		(requeststatus=#{requeststatus1} or requeststatus=#{requeststatus2})
+	</select>
+
+	<select id="getAllCount" parameterType="String" resultType="int">
+		 select count(*) from wallet_remit
+   	where delflag = '0'
+	and userid = #{userId,jdbcType=VARCHAR}
+	</select>
+
+	<select id="getCount" parameterType="String" resultType="int">
+		select
+		count(*) from wallet_refund 
+		where delflag = '0'
+	and userid = #{userId,jdbcType=VARCHAR}
+	</select>
+
+	<resultMap id="UserAddressMap" type="com.ytgrading.dto.UserAddress">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="country" property="country" jdbcType="VARCHAR" />
+		<result column="province" property="province" jdbcType="VARCHAR" />
+		<result column="city" property="city" jdbcType="VARCHAR" />
+		<result column="area" property="area" jdbcType="VARCHAR" />
+		<result column="address" property="address" jdbcType="VARCHAR" />
+		<result column="receiver" property="receiver" jdbcType="VARCHAR" />
+		<result column="zip" property="zip" jdbcType="VARCHAR" />
+		<result column="tel" property="tel" jdbcType="VARCHAR" />
+		<result column="mail" property="mail" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="isdefault" property="isdefault" jdbcType="CHAR" />
+		<result column="userid" property="userid" jdbcType="VARCHAR" />
+		<result column="fax" property="fax" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="delflag" property="delflag" jdbcType="CHAR" />
+	</resultMap>
+
+	<sql id="UserAddress_Column_List">
+		id, country, province, city, area, address, receiver, zip,
+		tel, mail,
+		remark, isdefault,
+		userid, fax, mobile, delflag
+	</sql>
+
+	<select id="selectByKey" resultMap="UserAddressMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="UserAddress_Column_List" />
+		from user_address
+		where  isdefault = '1' and delflag = '0' and userid = #{userid,jdbcType=VARCHAR} 
+	</select>
+
+
+	<select id="getAllCoin" parameterType="String" resultType="com.ytgrading.bean.Review">
+		select
+		c.years,
+		ExtractValue(t.fullname, "//value[@lang='zh_CN']") as guojia,
+		c.fullsubject,
+		CONCAT(c.weight,ExtractValue(s.fullname, "//value[@lang='zh_CN']")) as zhongliang,
+		ExtractValue(q.fullname, "//value[@lang='zh_CN']") as zhiliang,
+		ExtractValue(m.fullname, "//value[@lang='zh_CN']") as caizhi,
+		c.version,r.amount,c.facevalue,r.evaluate,r.score,r.remark
+		from request_detail r , coin c ,sys_coin_munits s ,sys_coin_mquality q
+		,sys_coin_material m ,sys_country t
+		where r.coinid=c.id
+		and s.id=c.unitofmeasurement
+		and q.id=c.mquality
+		and m.id = c.material
+		and t.id = c.country
+		and r.requestid =#{requestid}
+	</select>
+
+	<resultMap id="User_loginMap" type="com.ytgrading.dto.UserLogin">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="loginname" property="loginname" jdbcType="VARCHAR" />
+		<result column="activatedate" property="activatedate" jdbcType="TIMESTAMP" />
+		<result column="lastlogindate" property="lastlogindate" jdbcType="TIMESTAMP" />
+		<result column="lastloginip" property="lastloginip" jdbcType="INTEGER" />
+		<result column="userid" property="userid" jdbcType="VARCHAR" />
+		<result column="failures" property="failures" jdbcType="INTEGER" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<update id="updatepassword" parameterType="com.ytgrading.dto.UserLogin">
+		update user_login
+		<set>
+			<if test="activatedate != null">
+				activatedate = #{activatedate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="lastlogindate != null">
+				lastlogindate = #{lastlogindate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="lastloginip != null">
+				lastloginip = #{lastloginip,jdbcType=INTEGER},
+			</if>
+			<if test="userid != null">
+				userid = #{userid,jdbcType=VARCHAR},
+			</if>
+			<if test="failures != null">
+				failures = #{failures,jdbcType=INTEGER},
+			</if>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where userid = #{userid,jdbcType=VARCHAR}
+	</update>
+	
+	<update id="updateUser" parameterType="com.ytgrading.dto.Users">
+		update user
+		<set>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+
+	<select id="getAllfacevalue" resultType="com.ytgrading.bean.CoinFacevalue">
+		select id,facevaluedis from sys_coin_facevalue
+	</select>
+	<select id="getAllProvince" resultType="com.ytgrading.dto.SysProvinceWithBLOBs">
+		select
+		id,ExtractValue(name, "//value[@lang='zh_CN']") as name from
+		sys_province where parentid =#{parentid,jdbcType=VARCHAR}
+	</select>
+
+	<select id="getAllCity" resultType="com.ytgrading.dto.SysCityWithBLOBs">
+		select 
+		id, ExtractValue(fullname, "//value[@lang='zh_CN']") as fullname from 
+		sys_city where parentid =#{parentid,jdbcType=VARCHAR}
+	</select>
+
+	<select id="getAllDistrict" resultType="com.ytgrading.dto.SysDistrictWithBLOBs">
+		select 
+		id, ExtractValue(fullname, "//value[@lang='zh_CN']") as fullname from
+		sys_district where parentid =#{parentid,jdbcType=VARCHAR}
+	</select>
+
+	<select id="RequestDetailCount" parameterType="String" resultType="int">
+		select count(*) from request_detail d where d.requestid =#{requestid}
+	</select>
+
+	<select id="getAllmaterial" resultType="com.ytgrading.dto.SysCoinMaterialWithBLOBs">
+		SELECT 
+		  (
+		    CASE
+		      WHEN id = 7 
+		      THEN 7 
+		      ELSE id 
+		    END) id,
+		  (
+		    CASE
+		      WHEN id = 7 
+		      THEN "合金" 
+		      ELSE CONCAT(
+		        ExtractValue (
+		          fullname,
+		          "//value[@lang='zh_CN']"
+		        ),
+		        "(",
+		        ExtractValue (
+		          fullname,
+		          "//value[@lang='en_US']"
+		        ),
+		        ")"
+		      ) 
+		    END
+		  ) fullname 
+		FROM
+		  sys_coin_material 
+		WHERE (id &lt;= 7 
+		    OR id &gt;= 17)
+		<if test="entitytype==3" >
+		  AND id IN (
+				SELECT DISTINCT
+					material
+				FROM
+					sys_ancient_coin_basic_info
+			)
+		</if>
+		<if test="entitytype==5" >
+		  AND id IN (
+				SELECT DISTINCT
+					material
+				FROM
+					sys_mechanism_coin_basic_info
+			)
+		</if>
+	</select>
+
+	<select id="getMunits" resultType="com.ytgrading.dto.SysCoinMaterialWithBLOBs">
+		select
+		id,ExtractValue(fullname, "//value[@lang='zh_CN']") as fullname from
+		sys_coin_munits
+		where id={#id}
+	</select>
+
+	<select id="getAllmunits" resultType="com.ytgrading.bean.Munits">
+		select m.id,CONCAT(ExtractValue(m.fullname, "//value[@lang='zh_CN']"),"(",ExtractValue(m.fullname, "//value[@lang='en_US']"),')') as
+		danwei,v.`value`,v.showValue from
+		sys_coin_munitsvalue v , sys_coin_munits m where v.munitid = m.id
+	</select>
+
+	<select id="getAllmquality" resultType="com.ytgrading.dto.SysCoinMqualityWithBLOBs">
+		select
+		id, CONCAT(ExtractValue(fullname, "//value[@lang='zh_CN']"),"(",ExtractValue(fullname, "//value[@lang='en_US']"),')') as fullname from
+		sys_coin_mquality
+	</select>
+
+	<select id="getCoin" parameterType="com.ytgrading.bean.Entityview" resultType="com.ytgrading.bean.Review">
+		select c.years,c.id,c.evaluate,c.amountofissue,c.catalogue,
+		(
+		    CASE
+		      WHEN t.id = 1 
+		      THEN ExtractValue (
+		        t.fullname,
+		        "//value[@lang='zh_CN']"
+		      ) 
+		      ELSE ExtractValue (
+		        t.fullname,
+		        "//value[@lang='zh_CN']"
+		      ) 
+		    END
+		  )  as guojia,
+		c.shortsubject ,c.size,
+		c.fullsubject as fulltitle,c.enfullsubject,sci.typename as cointypename,
+		CONCAT(c.weight,ExtractValue(s.fullname, "//value[@lang='zh_CN']")) as zhongliang,
+		(
+		    CASE
+		      WHEN t.id = 1 
+		      THEN ExtractValue (
+		        q.fullname,
+		        "//value[@lang='zh_CN']"
+		      ) 
+		      ELSE ExtractValue (
+		        q.fullname,
+		        "//value[@lang='zh_CN']"
+		      ) 
+		    END
+		  ) as zhiliang,
+		(
+		    CASE
+		      WHEN t.id = 1 
+		      THEN ExtractValue (
+		        m.fullname,
+		        "//value[@lang='zh_CN']"
+		      ) 
+		      ELSE ExtractValue (
+		        m.fullname,
+		        "//value[@lang='zh_CN']"
+		      ) 
+		    END
+		  ) as caizhi,
+		version,facevalue, c.weight,c.components,
+		CONCAT_WS('',c.years,ExtractValue (t.fullname,"//value[@lang='zh_CN']"),ExtractValue (t.fullname,"//value[@lang='en_US']"),
+		c.shortsubject,c.fullsubject,c.enfullsubject,c.enshortsubject,c.commonlysubject,c.facevaluedis,c.sizedis,
+  		c.weightshow,ExtractValue(q.fullname,"//value[@lang='zh_CN']"),ExtractValue(q.fullname,"//value[@lang='en_US']"),
+		ExtractValue (m.fullname,"//value[@lang='zh_CN']"),ExtractValue (m.fullname,"//value[@lang='en_US']"),sci.typename),
+		c.weightshow,c.facevaluedis 
+		from
+		sys_coin_munits s,
+		sys_coin_mquality q,
+		sys_coin_material m
+		STRAIGHT_JOIN coin c ,
+		sys_country t,
+		sys_coin_issuecode sci
+		where s.id = c.unitofmeasurement
+		and q.id = c.mquality
+		and m.id = c.material
+		and t.id = c.country
+		and c.issuecode=sci.id
+		<if test="years != null and years != ''" >
+        and c.years=#{years}
+      	</if>
+      	<if test="country != null and country != ''" >
+		and c.country =#{country}
+      	</if>
+      	<if test="facevaluedis != null and facevaluedis != ''" >
+		and c.facevaluedis =#{facevaluedis}
+      	</if>
+      	<if test="fullsubject != null and fullsubject != ''" >
+		<!--and c.fullsubject LIKE CONCAT(CONCAT('%',#{fullsubject}),'%')  -->
+		<foreach item="item" index="index" collection="fullsubject">
+    	and CONCAT_WS('',c.years,ExtractValue (t.fullname,"//value[@lang='zh_CN']"),ExtractValue (t.fullname,"//value[@lang='en_US']"),
+		c.shortsubject,c.fullsubject,c.enfullsubject,c.enshortsubject,c.commonlysubject,c.facevaluedis,c.sizedis,
+  		c.weightshow,ExtractValue(q.fullname,"//value[@lang='zh_CN']"),ExtractValue(q.fullname,"//value[@lang='en_US']"),
+		ExtractValue (m.fullname,"//value[@lang='zh_CN']"),ExtractValue (m.fullname,"//value[@lang='en_US']"),sci.typename) LIKE CONCAT(CONCAT('%',#{item}),'%')
+ 	 	 </foreach>
+      	</if>
+      	<if test="catalogue != null and catalogue != ''" >
+		and c.catalogue LIKE CONCAT(CONCAT(#{catalogue}),'%') 
+      	</if>
+      	<if test="weight != null and weight != ''" >
+		and c.weight =#{weight}
+      	</if>
+      	<if test="unitofmeasurement != null and unitofmeasurement != ''" >
+		and c.unitofmeasurement =#{unitofmeasurement}
+		</if>
+		<if test="mquality != null and mquality != ''" >
+		and c.mquality =#{mquality}
+		</if>
+		<if test="material != null and material != ''" >
+			<if test="material &lt; 7" >
+				and c.material=#{material}
+			</if>
+			<if test="material == 7" >
+				and c.material &gt;= 7
+				and c.material &lt; 17
+			</if>
+			<if test="material &gt;= 17" >
+				and c.material=#{material}
+			</if>
+		</if>
+		order by c.catalogue
+		limit #{startRow},15
+	</select>
+	
+	<insert id="insertDetail" parameterType="com.ytgrading.bean.RequestDetailBean">
+	  insert into request_detail (id, coinid, amount, 
+      evaluate, score, requestid, 
+      remark, numindex, totalreqcost, 
+      totalevaluate, amountofissue,guestappraisal,
+      wmk,whetherSample,blockNum,version,guestWRWeight,
+      guestWRSize,guestWRGrade,whetherSeries,stampjointype)
+    values (#{id,jdbcType=VARCHAR}, #{coinid}, #{amount}, 
+      #{evaluate}, #{score}, #{requestid,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR}, #{numindex}, #{totalreqcost,jdbcType=DECIMAL}, 
+      #{totalevaluate,jdbcType=DECIMAL}, #{amountofissue,jdbcType=INTEGER}, 
+      #{guestappraisal}, #{wmk,jdbcType=VARCHAR},#{whetherSample,jdbcType=CHAR},
+      #{blockNum,jdbcType=VARCHAR},#{version,jdbcType=VARCHAR},
+      #{guestWRWeight,jdbcType=VARCHAR},#{guestWRSize,jdbcType=VARCHAR},
+      #{guestWRGrade,jdbcType=VARCHAR},
+      #{whetherSeries,jdbcType=VARCHAR},
+      #{stampjointype,jdbcType=VARCHAR})
+	</insert>
+
+	<delete id="deleteById" parameterType="java.lang.String" >
+    delete from request_detail
+    where requestid = #{id,jdbcType=VARCHAR}
+  </delete>
+  
+  <select id="selectById" resultType="com.ytgrading.dto.Users" parameterType="java.lang.String">
+		select * from user
+		where id = #{userid,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectRequestInfo" resultType="com.ytgrading.dto.Request" parameterType="java.lang.String">
+  		select * from request_main 
+  		where id = #{requestcode,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectDetail" resultType="com.ytgrading.bean.Review" parameterType="java.lang.String">
+	select d.amount,d.evaluate,d.score,d.remark,c.years,c.fullsubject,c.version,c.facevalue,d.totalevaluate,d.totalreqcost,
+		ExtractValue(m.fullname, "//value[@lang='zh_CN']") as caizhi,
+		ExtractValue(t.fullname, "//value[@lang='zh_CN']") as guojia,
+		ExtractValue(q.fullname, "//value[@lang='zh_CN']") as zhiliang,
+		CONCAT(c.weight,ExtractValue(s.fullname, "//value[@lang='zh_CN']")) as zhongliang
+		from request_detail d ,coin c ,sys_coin_material m ,sys_country t , sys_coin_mquality q ,sys_coin_munits s
+		where d.coinid = c.id 
+		and c.material = m.id
+		and c.mquality = q.id
+		and c.unitofmeasurement = s.id
+		and c.country = t.id
+		and d.requestid = #{requestid}
+  </select>
+  
+  <select id="selectRequestCoins" parameterType="java.lang.String" resultType="com.ytgrading.bean.RequestCoinBean">
+  		select r.id,r.coincode,c.years,
+		ExtractValue(t.fullname, "//value[@lang='zh_CN']") as guojia,
+		c.fullsubject,
+		CONCAT(c.weight,ExtractValue(s.fullname, "//value[@lang='zh_CN']")) as zhongliang,
+		ExtractValue(q.fullname, "//value[@lang='zh_CN']") as zhiliang,
+		ExtractValue(m.fullname, "//value[@lang='zh_CN']") as caizhi,
+		c.facevalue,
+		c.version,
+		r.customerscore
+		from request_coin r ,coin c ,sys_coin_material m ,sys_country t , sys_coin_mquality q ,sys_coin_munits s
+		where r.coinid = c.id 
+		and c.material = m.id
+		and c.mquality = q.id
+		and c.unitofmeasurement = s.id
+		and c.country = t.id
+        and r.requestid = #{requestid}
+        order by r.coincode
+  </select>
+  
+  <insert id="insertScore" parameterType="com.ytgrading.dto.RequestCoinScore" >
+    insert into request_coin_score (id, requestcoinid, level, 
+      score,scores, remark, scoreby,scoretime,ratingreasondis)
+    values (#{id,jdbcType=VARCHAR}, #{requestcoinid,jdbcType=VARCHAR}, #{level,jdbcType=CHAR}, 
+      #{score,jdbcType=DECIMAL},#{scores,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{scoreby,jdbcType=INTEGER}, 
+      #{scoretime,jdbcType=TIMESTAMP},#{ratingreasondis,jdbcType=VARCHAR})
+  </insert>
+  
+  <select id="selectRequest" parameterType="java.lang.String" resultType="com.ytgrading.dto.Request">
+  		select id,ownid,requestcode,boxcode,speed,serviceid,totalamount,remark,internalstates,entitytype
+  		from request_main where id = #{id}
+  </select>
+  
+  <select id="selectSearchScores" parameterType="java.lang.String" resultType="com.ytgrading.bean.SearchScore">
+  		select r.id,r.coincode,c.years,
+		ExtractValue(t.fullname, "//value[@lang='zh_CN']") as guojia,
+		c.fullsubject,
+		CONCAT(c.weight,ExtractValue(s.fullname, "//value[@lang='zh_CN']")) as zhongliang,
+		ExtractValue(q.fullname, "//value[@lang='zh_CN']") as zhiliang,
+		ExtractValue(m.fullname, "//value[@lang='zh_CN']") as caizhi,
+		c.facevalue,
+		c.version,
+		r.customerscore,
+		o.score,
+		o.id as scoreid ,
+		o.`level`,
+		o.remark,
+		c.facevaluedis,
+		c.weightshow,
+		r.remark as pubremark,	
+		r.difversion,
+		o.ratingreasondis
+		from request_coin r left join request_coin_score o on  r.id = o.requestcoinid and o.scoreby = #{scoreby} AND `level`='1',coin c ,sys_coin_material m ,sys_country t , sys_coin_mquality q ,sys_coin_munits s
+		where r.coinid = c.id 
+		and c.material = m.id
+		and c.mquality = q.id
+		and c.unitofmeasurement = s.id
+		and c.country = t.id
+		and r.requestid = #{requestid}
+		order by r.coincode
+  </select>
+  <delete id="deleteScore" parameterType="java.lang.String" >
+	    delete from request_coin_score
+	    where requestcoinid = #{id,jdbcType=VARCHAR}
+	    AND level = #{level,jdbcType=VARCHAR}
+	    AND scoreby = #{employeeid,jdbcType=VARCHAR}
+  </delete>
+  
+  <update id="updateRequest" parameterType="com.ytgrading.dto.Request" >
+	    update request_main
+	    set 
+	      internalstates = #{internalstates,jdbcType=CHAR}
+	    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+    <select id="selectSecondScores" parameterType="java.lang.String" resultType="com.ytgrading.bean.SearchScore">
+  		select r.id,r.coincode,c.years,
+		ExtractValue(t.fullname, "//value[@lang='zh_CN']") as guojia,
+		c.fullsubject,
+		CONCAT(c.weight,ExtractValue(s.fullname, "//value[@lang='zh_CN']")) as zhongliang,
+		ExtractValue(q.fullname, "//value[@lang='zh_CN']") as zhiliang,
+		ExtractValue(m.fullname, "//value[@lang='zh_CN']") as caizhi,
+		c.facevalue,
+		c.version,
+		o.score,
+		o.`level`,
+		o.remark,
+		o.id as scoreid,
+		c.facevaluedis,
+		c.weightshow,
+		r.remark as pubremark,
+		r.difversion,
+		o.ratingreasondis
+		from request_coin r LEFT JOIN request_coin_score o on r.id = o.requestcoinid ,coin c ,sys_coin_material m ,sys_country t , sys_coin_mquality q ,sys_coin_munits s
+		where r.coinid = c.id 
+		and c.material = m.id
+		and c.mquality = q.id
+		and c.unitofmeasurement = s.id
+		and c.country = t.id
+		and r.requestid = #{requestid}
+		order by r.coincode,o.level,o.scoreby
+  </select>
+  <select id="selectFirstScores" parameterType="java.lang.String" resultType="com.ytgrading.bean.SearchScore">
+  		select r.coincode,c.years,
+		ExtractValue(t.fullname, "//value[@lang='zh_CN']") as guojia,
+		c.fullsubject,
+		CONCAT(c.weight,ExtractValue(s.fullname, "//value[@lang='zh_CN']")) as zhongliang,
+		ExtractValue(q.fullname, "//value[@lang='zh_CN']") as zhiliang,
+		ExtractValue(m.fullname, "//value[@lang='zh_CN']") as caizhi,
+		c.facevalue,
+		c.version,
+		o.score,
+		o.`level`,
+		o.remark
+		from request_coin r ,coin c ,sys_coin_material m ,sys_country t , sys_coin_mquality q ,sys_coin_munits s,request_coin_score o
+		where r.coinid = c.id 
+		and c.material = m.id
+		and c.mquality = q.id
+		and c.unitofmeasurement = s.id
+		and c.country = t.id
+		and r.coinid = o.requestcoinid
+		and r.requestid = #{requestid}
+		and o.scoreby = #{scoreby}
+		order by r.coincode
+  </select>
+  
+  <select id="selectCoin" parameterType="java.lang.String" resultType="com.ytgrading.bean.RequestCoinBean">
+      select r.coincode,c.years,
+		ExtractValue(t.fullname, "//value[@lang='zh_CN']") as guojia,
+		c.fullsubject,
+		CONCAT(c.weight,ExtractValue(s.fullname, "//value[@lang='zh_CN']")) as zhongliang,
+		ExtractValue(q.fullname, "//value[@lang='zh_CN']") as zhiliang,
+		ExtractValue(m.fullname, "//value[@lang='zh_CN']") as caizhi,
+		c.facevalue,
+		c.version,
+		c.facevaluedis,
+		c.weightshow,r.score,r.difversion,r.ratingreasondis
+		from request_coin r ,coin c ,sys_coin_material m ,sys_country t , sys_coin_mquality q ,sys_coin_munits s
+		where r.coinid = c.id 
+		and c.material = m.id
+		and c.mquality = q.id
+		and c.unitofmeasurement = s.id
+		and c.country = t.id
+		and r.requestid = #{requestid}
+		order by r.coincode
+  </select>
+  <update id="insertFinalScore">
+  		UPDATE request_coin rc
+		SET rc.score = (
+			SELECT
+				rcs.score
+			FROM
+				request_coin_score rcs
+			WHERE
+				rcs.requestcoinid = rc.id
+			AND rcs.`LEVEL` = 2
+		)
+		WHERE
+			rc.requestid = #{requestid,jdbcType=VARCHAR}
+  </update>
+  <update id="insertFinalScores">
+  		UPDATE request_coin rc
+		SET rc.scores = (
+			SELECT
+				rcs.scores
+			FROM
+				request_coin_score rcs
+			WHERE
+				rcs.requestcoinid = rc.id
+			AND rcs.`LEVEL` = 2
+		)
+		WHERE
+			rc.requestid = #{requestid,jdbcType=VARCHAR}
+  </update>
+  <select id="getRequestCoinIdByCoinCode" parameterType="java.lang.String" resultType="java.lang.String">
+      SELECT id FROM request_coin 
+      WHERE coincode = #{coincode,jdbcType=VARCHAR}
+  </select>
+  <select id="getCoinChartInfo" parameterType="java.lang.String" resultType="com.ytgrading.bean.CoinChart">
+	    SELECT c.years,c.catalogue,c.shortsubject,c.version,c.facevaluedis,
+			ExtractValue(t.fullname, "//value[@lang='zh_CN']") as country,
+			ExtractValue(q.fullname, "//value[@lang='zh_CN']") as mquality,
+			ExtractValue(m.fullname, "//value[@lang='zh_CN']") as material,
+			rc.score,rc.coincode
+		FROM coin c, sys_coin_mquality q ,sys_coin_material m ,sys_country t,request_coin rc
+		WHERE rc.coincode = #{coincode,jdbcType=VARCHAR}
+			AND rc.coinid = c.id
+			AND q.id = c.mquality
+			AND m.id = c.material
+			AND t.id = c.country
+  	</select>
+    <select id="getChartCoins" resultType="com.ytgrading.bean.CoinChart">
+	    SELECT c.years,c.catalogue,c.shortsubject,c.version,c.facevaluedis,
+			ExtractValue(t.fullname, "//value[@lang='zh_CN']") as country,
+			ExtractValue(q.fullname, "//value[@lang='zh_CN']") as mquality,
+			ExtractValue(m.fullname, "//value[@lang='zh_CN']") as material,
+			c.issuecode,
+			rc.score,rc.coincode,rc.difversion,rc.ratingreasondis
+		FROM coin c, sys_coin_mquality q ,sys_coin_material m ,sys_country t,request_coin rc
+		WHERE rc.coincode LIKE CONCAT(#{requestCode},'%')
+			AND rc.coinid = c.id
+			AND q.id = c.mquality
+			AND m.id = c.material
+			AND t.id = c.country order by coincode
+  	</select>
+    <select id="getRequestEntitytype" resultType="java.lang.String">
+	    SELECT 
+		  r.entitytype
+		FROM
+		  request_main r 
+		WHERE r.requestcode = #{requestCode}
+		  OR r.id = #{requestCode}
+  </select>
+    <select id="getPrintData" resultType="com.ytgrading.bean.CoinChart">
+	 SELECT c.years,c.catalogue,c.shortsubject,c.enshortsubject,c.version,c.facevaluedis,c.weightshow,c.size,
+		   case c.country when c.country='1' then
+				ExtractValue(t.fullname, "//value[@lang='zh_CN']")
+		   else
+		      ExtractValue(t.fullname, "//value[@lang='en_US']")
+		   end as country, 
+		   case c.country when c.country='1' then
+				ExtractValue(q.fullname, "//value[@lang='zh_CN']")
+		   else
+		       ExtractValue(q.fullname, "//value[@lang='en_US']")
+		   end as mquality,
+		   case c.country when c.country='1' then
+				ExtractValue(m.fullname, "//value[@lang='zh_CN']")
+		   else
+		      ExtractValue(m.fullname, "//value[@lang='en_US']")
+		   end as material, 
+			c.issuecode,
+			rc.score,rc.coincode,rc.difversion,rc.ratingreasondis
+		FROM coin c, sys_coin_mquality q ,sys_coin_material m ,sys_country t,request_coin rc
+		WHERE rc.coincode LIKE CONCAT(#{requestCode},'%')
+			AND rc.coinid = c.id
+			AND q.id = c.mquality
+			AND m.id = c.material
+			AND t.id = c.country
+			<if test="country=='cn'">
+				AND	c.country='1'
+			</if>
+			<if test="country=='un'">
+				AND	c.country!='1'
+			</if>
+			order by coincode
+	</select>
+  <select id="getUsercodeById" resultType="java.lang.Integer" parameterType="java.lang.String">
+      SELECT usercode FROM `user` 
+      WHERE id = #{id,jdbcType=VARCHAR}
+  </select>
+     <select id="getRequestDecs" resultType="com.ytgrading.dto.Request">
+  		SELECT * from request_main 
+  			WHERE  floor(requestcode/1000)%10=#{refour,jdbcType=INTEGER}
+  			AND floor(requestcode/100)%10=#{rethree,jdbcType=INTEGER}
+  			ORDER BY requestcode DESC
+  			LIMIT 0,1
+  </select>
+  <select id="getReqByCode" resultType="com.ytgrading.dto.Request" parameterType="java.lang.Integer">
+  		select * from request_main 
+  		where requestcode = #{requestcode,jdbcType=VARCHAR}
+  </select>
+   <select id="getNewReqcode"  statementType="CALLABLE" resultType="java.lang.Integer" >  
+      {call proc_request_getnewreqcode_new(  
+       #{refour,mode=IN,jdbcType=INTEGER},#{rethree,mode=IN,jdbcType=INTEGER}
+      )}  
+  </select>  
+</mapper>

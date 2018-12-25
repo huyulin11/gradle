@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.AncientCoinMapper">
+<select id="selectAncientCoinDetail" resultType="com.ytgrading.bean.Review" parameterType="java.lang.String">
+		SELECT  
+		  rd.coinid,
+		  rd.amount,
+		  rd.evaluate guestappraisal,
+		  sacbi.evaluate,
+		  rd.score,
+		  rd.remark,
+		  rd.numindex,
+		  rd.totalreqcost,
+		  rd.totalevaluate,
+		  rd.amountofissue,
+		  rd.guestappraisal,
+		  rd.wmk,
+		  rd.whetherSample,
+		  rd.blockNum,
+		  rd.guestWRSize as size,
+		  rd.guestWRWeight as zhongliang,
+		  sacbi.fullsubject,
+		  sacbi.shortsubject,
+		  sacbi.facevaluedis,
+		  sacbi.grade,
+			rd.guestWRGrade as gradename,
+		    (SELECT money FROM sys_box_basic_info box
+			WHERE boxid=box.id) as boxCost,
+		  sacbi.dynasty,
+		  (SELECT 
+		    dicvalue 
+		  FROM
+		    sys_dictionary_basic_data_info 
+		  WHERE dickey = sacbi.dynasty 
+		    AND dictype = "CHINESE_DYNASTY") dynastyname,
+		  material,
+		  (SELECT
+			ExtractValue (
+				m.fullname,
+				"//value[@lang='zh_CN']"
+			)
+		FROM
+			sys_coin_material m
+		WHERE
+			m.id = material) caizhi,
+		  ExtractValue(st.fullname, "//value[@lang='zh_CN']") guojia,
+		  rd.version 
+		FROM
+		  request_detail rd,
+		  sys_ancient_coin_basic_info sacbi,
+		  sys_country st 
+		WHERE rd.coinid = sacbi.id 
+		  AND sacbi.country = st.id 
+		  AND rd.requestid = #{id,jdbcType=VARCHAR}
+		ORDER BY rd.numindex 
+	</select>
+	
+	<select id="getAncientCoinData" parameterType="com.ytgrading.bean.Entityview" resultType="com.ytgrading.bean.SysAncientCoinBasicInfo">
+		SELECT 
+		  sacbi.id,
+		  catalogue,
+		  country,
+		  ExtractValue (
+		    c.fullname,
+		    "//value[@lang='zh_CN']"
+		  ) guojia,
+		  dynasty,
+		  (SELECT 
+		    dicvalue 
+		  FROM
+		    sys_dictionary_basic_data_info 
+		  WHERE dickey = dynasty 
+		    AND dictype = "CHINESE_DYNASTY") dynastyname,
+		  fullsubject,
+		  shortsubject,
+		  commonlysubject,
+		  castingtime,
+		  facevaluedis,
+		  material,
+		  (SELECT
+				ExtractValue (
+					m.fullname,
+					"//value[@lang='zh_CN']"
+				)
+			FROM
+				sys_coin_material m
+			WHERE
+				m.id = material) caizhi,
+		  grade,
+		  (SELECT 
+		    dicvalue 
+		  FROM
+		    sys_dictionary_basic_data_info 
+		  WHERE dickey = grade
+		    AND dictype = "ACT_C_GRADE") gradename,
+			(SELECT money FROM sys_box_basic_info box
+			WHERE boxid=box.id) as boxCost,
+		  weight,
+		  size,
+		  version,
+		  evaluate,
+		  remarks,
+		  CONCAT_WS(
+		    c.shortname,
+		    (SELECT 
+		      dicvalue 
+		    FROM
+		      sys_dictionary_basic_data_info 
+		    WHERE dickey = dynasty 
+		      AND dictype = "CHINESE_DYNASTY"),
+		    fullsubject,
+		    shortsubject,
+		    castingtime,
+		    commonlysubject,
+		    shortsubject,
+		    facevaluedis,
+		    VERSION
+		  ) 
+		FROM
+		  sys_ancient_coin_basic_info sacbi,
+		  sys_country c 
+		WHERE c.id = sacbi.country 
+		<if test="dynasty != 0" >
+		     and sacbi.dynasty=#{dynasty}
+		</if>
+		<if test="dynasty != 0" >
+		     and sacbi.dynasty=#{dynasty}
+		</if>
+		<if test="country != null and country != ''" >
+			and sacbi.country =#{country}
+      	</if>
+      	<if test="facevaluedis != null and facevaluedis != ''" >
+			and sacbi.facevaluedis  like  CONCAT("%",#{facevaluedis},"%")
+      	</if>
+      	<if test="material != null and material != ''" >
+			and sacbi.material =#{material}
+      	</if>
+      	<if test="version != null and version != ''" >
+			and sacbi.version  like  CONCAT("%",#{version},"%")
+      	</if>
+      	<if test="size != null and size != ''" >
+			and sacbi.size  like  CONCAT("%",#{size},"%")
+      	</if>
+      	<if test="fullname != null and fullname != ''">
+      		<foreach item="item" index="index" collection="fullname">
+			and	CONCAT_WS(
+				c.shortname,
+				(SELECT 
+			      dicvalue 
+			    FROM
+			      sys_dictionary_basic_data_info 
+			    WHERE dickey = dynasty 
+			      AND dictype = "CHINESE_DYNASTY"),
+				fullsubject,
+				shortsubject,
+				castingtime,
+				commonlysubject,
+				shortsubject,
+				facevaluedis,
+				version
+			) like  CONCAT("%",#{item},"%")
+      		</foreach>
+      	</if>
+		limit #{startRow},15
+</select>	
+  <select id="getAncientCoinStatementListByReqCode" resultType="com.ytgrading.bean.Statement" parameterType="java.lang.Integer">
+  	SELECT r.entitytype,r.requestcode,sdbdi.dicvalue as coincountry,rc.coincode,rc.tagindex,rc.remark,rc.ratingreasondis,
+      rd.evaluate,rd.numindex,r.usercode,r.customer,r.mobile,
+      r.mail,r.serviceid,r.speed,r.totalamount,r.totalweight,r.totalpreferential,r.othercost,
+      r.totalevaluate,r.totalreqcost,r.totalpremium,r.totaltransportation,
+      r.totalinsurance,r.totalcost,r.sendtype,r.payment, rc.score,
+	  ExtractValue(co.fullname, "//value[@lang='zh_CN']") as country,
+	  ExtractValue(p.name, "//value[@lang='zh_CN']") as province,
+	  ExtractValue(c.fullname, "//value[@lang='zh_CN']") as city,
+	  ExtractValue(d.fullname, "//value[@lang='zh_CN']") as area,
+	  r.address,r.paystatus,rd.guestappraisal,rd.totalreqcost as totalcoincost,
+	  rd.coinid,num.gpn as sameCoinNum
+	  FROM (SELECT rc1.coincode,rc1.coinid as cid,count(*) as gpn FROM request_coin rc1 
+	  LEFT JOIN request_detail rd1 ON rc1.requestid = rd1.requestid AND rc1.coinid = rd1.coinid 
+	  LEFT JOIN request_main r1 ON rc1.requestid = r1.id 
+	  WHERE r1.requestcode =#{requestcode,jdbcType=INTEGER} group by rc1.coinid) num,request_coin rc 
+	  LEFT JOIN request_detail rd ON rc.requestid = rd.requestid AND rc.coinid = rd.coinid 
+	  LEFT JOIN request_main r ON rc.requestid = r.id 
+	  LEFT JOIN sys_country co ON r.country = co.id 
+	  LEFT JOIN sys_province p ON r.province = p.id 
+	  LEFT JOIN sys_city c ON r.city = c.id 
+	  LEFT JOIN sys_district d ON r.area = d.id 
+	  LEFT JOIN sys_ancient_coin_basic_info sacbi ON rc.coinid = sacbi.id 
+		LEFT JOIN sys_dictionary_basic_data_info sdbdi ON sdbdi.dickey=sacbi.dynasty
+	  WHERE r.requestcode = #{requestcode,jdbcType=INTEGER} 
+	  AND num.cid=rd.coinid
+		AND sdbdi.dictype='CHINESE_DYNASTY'
+	  ORDER BY coincode ASC
+  </select>
+   <select id="getAncientCoinInfo" resultType="com.ytgrading.bean.CoinInfo">
+   		SELECT rc.id, rc.coincode,sc.shortname as guojia,sacbi.fullsubject,sacbi.facevaluedis,sdbdi.dicvalue as dynasty,scm.shortname as caizhi,
+		rd.guestWRWeight as zhongliang,rd.guestWRSize as size,rd.version,rc.remark as coinremark,rd.guestWRGrade as grade,
+		rd.requestid,rcs.level,rc.score,rc.ratingreasondis
+		from request_coin rc  left join request_coin_score rcs on rcs.requestcoinid=rc.id, request_detail rd,
+   		sys_ancient_coin_basic_info sacbi left join sys_coin_material scm on scm.id=sacbi.material,
+		sys_country sc,sys_dictionary_basic_data_info sdbdi,request_main r
+		where rd.id=rc.requestdetailid
+		AND sacbi.country=sc.id
+		AND rd.coinid=sacbi.id
+		AND r.id=rd.requestid
+		AND	sdbdi.dickey=sacbi.dynasty
+		AND sdbdi.dictype='CHINESE_DYNASTY'
+		AND rc.id=#{requestcoinid,jdbcType=VARCHAR}
+		group by rc.coincode
+   </select>
+  <select id="getAncientCoinInfoByCode" resultType="com.ytgrading.bean.CoinInfo">
+ SELECT rc.id, rc.coincode,sc.shortname as guojia,sacbi.fullsubject,sacbi.facevaluedis,sdbdi.dicvalue as dynasty,scm.shortname as caizhi,
+rc.weight as zhongliang,rc.customSize as size,rc.difversion as version,rc.remark as coinremark,rc.guestWRGrade as grade,
+		(CASE WHEN r.serviceid = 1 THEN '新评' WHEN r.serviceid = 2 THEN '重评' WHEN r.serviceid = 5 THEN
+		'真品鉴定' END ) serviceid,rd.requestid,rcs.level,rc.score,rc.ratingreasondis
+		from request_coin rc  left join request_coin_score rcs on rcs.requestcoinid=rc.id, request_detail rd,
+   		sys_ancient_coin_basic_info sacbi left join sys_coin_material scm on scm.id=sacbi.material,
+		sys_country sc,sys_dictionary_basic_data_info sdbdi,request_main r
+		where rd.id=rc.requestdetailid
+		AND sacbi.country=sc.id
+		AND rd.coinid=sacbi.id
+		AND r.id=rd.requestid
+		AND	sdbdi.dickey=sacbi.dynasty
+		AND sdbdi.dictype='CHINESE_DYNASTY'
+		AND rc.coincode=#{coincode,jdbcType=VARCHAR}
+		ORDER BY rc.coincode
+  </select>
+    <select id="getPrintData" resultType="com.ytgrading.bean.CoinChart">
+		SELECT
+			(
+				SELECT
+					dicvalue
+				FROM
+					sys_dictionary_basic_data_info dic
+				WHERE
+					dic.dictype = "CHINESE_DYNASTY"
+				AND dic.dickey = c.dynasty
+			) dynastyname,
+			c.dynasty,
+			rc.guestWRGrade gradename,
+			c.catalogue,
+			c.shortsubject,
+			c.version,
+			c.facevaluedis,
+			(
+				CASE
+				WHEN rc.weight IS NOT NULL
+				AND rc.weight != '' THEN
+					rc.weight
+				WHEN rd.guestWRWeight IS NOT NULL
+				AND rd.guestWRWeight != '' THEN
+					rd.guestWRWeight
+				WHEN c.weight IS NOT NULL
+				AND c.weight != '' THEN
+					c.weight
+				END
+			) weight,
+			rc.customsize size,
+			(
+				CASE c.country
+				WHEN c.country = '1' THEN
+					ExtractValue (
+						t.fullname,
+						"//value[@lang='zh_CN']"
+					)
+				ELSE
+					ExtractValue (
+						t.fullname,
+						"//value[@lang='en_US']"
+					)
+				END
+			) AS country,
+			(
+				SELECT
+					ExtractValue (
+						m.fullname,
+						"//value[@lang='zh_CN']"
+					)
+				FROM
+					sys_coin_material m
+				WHERE
+					m.id = c.material
+			) material,
+			rc.score,
+			rc.coincode,
+			rc.difversion,
+			rc.ratingreasondis
+		FROM
+			sys_ancient_coin_basic_info c,
+			sys_country t,
+			request_coin rc,
+			request_detail rd
+		WHERE
+			rc.coincode LIKE CONCAT(#{requestCode}, '%')
+		AND rc.coinid = c.id
+		AND rc.requestdetailid = rd.id
+		AND t.id = c.country
+		ORDER BY
+			coincode
+  </select>
+  <select id="getAncientCoin" parameterType="java.lang.String" resultType="com.ytgrading.bean.RequestCoinBean">
+	SELECT rc.id,rc.coincode,sdbdi.dicvalue as dynasty,sacbi.fullsubject,sacbi.facevaluedis,
+		rc.guestWRGrade as grade,scm.shortname as caizhi,
+		rc.customSize as size,rc.difversion,rc.score,
+		rc.remark as pubremark,rc.ratingreasondis from request_detail rd 
+	LEFT JOIN request_coin rc ON rc.requestdetailid=rd.id
+	LEFT JOIN request_main r ON r.id=rd.requestid
+	LEFT JOIN sys_ancient_coin_basic_info sacbi on sacbi.id=rd.coinid
+	LEFT JOIN sys_coin_material scm ON scm.id=sacbi.material
+	LEFT JOIN sys_dictionary_basic_data_info sdbdi on sdbdi.dickey=sacbi.dynasty
+	 where rd.requestid=#{requestid}
+	AND sdbdi.dictype='CHINESE_DYNASTY'
+	ORDER BY rc.coincode
+  </select>
+ <select id="getSecondAncientCoinScores" parameterType="java.lang.String" resultType="com.ytgrading.bean.SearchScore">
+SELECT rc.id,rc.coincode,sdbdi.dicvalue as dynasty,sacbi.fullsubject,sacbi.facevaluedis,
+    rc.guestWRGrade as grade,scm.shortname as caizhi,rc.customSize as size,rc.difversion,
+    rcs.score,rcs.scoreby,rcs.`level`,rcs.remark,rc.remark as pubremark,rcs.ratingreasondis
+		from request_coin rc LEFT JOIN request_coin_score rcs on rcs.requestcoinid=rc.id,
+		sys_ancient_coin_basic_info sacbi left join sys_coin_material scm on sacbi.material=scm.id,
+	  sys_dictionary_basic_data_info sdbdi,request_detail rd
+		where rd.id=rc.requestdetailid
+		AND rd.coinid=sacbi.id
+		AND	sdbdi.dickey=sacbi.dynasty
+		AND sdbdi.dictype='CHINESE_DYNASTY'
+		AND rc.requestid=#{requestid}
+		ORDER BY rc.coincode,rcs.level,rcs.scoreby
+ </select> 
+  <select id="getFirstAncientCoinScores" parameterType="java.lang.String" resultType="com.ytgrading.bean.SearchScore">
+  	SELECT rc.id,rc.coincode,sdbdi.dicvalue as dynasty,sc.shortname as guojia,sacbi.fullsubject,sacbi.facevaluedis,
+		rc.customSize as size,rc.difversion,rd.guestWRGrade as grade,scm.shortname as caizhi,
+		rcs.score,rcs.scoreby,rcs.`level`,rcs.remark,rc.remark as pubremark,rcs.ratingreasondis
+		FROM request_coin rc
+		LEFT JOIN request_coin_score rcs ON rcs.requestcoinid=rc.id AND rcs.scoreby=#{scoreby} AND rcs.`level`='1'
+		LEFT JOIN request_detail rd ON rd.id=rc.requestdetailid
+		LEFT JOIN request_main r ON r.id=rc.requestid
+		LEFT JOIN sys_ancient_coin_basic_info sacbi ON sacbi.id=rc.coinid
+		LEFT JOIN sys_country sc ON sc.id=sacbi.country
+		LEFT JOIN sys_coin_material scm ON scm.id=sacbi.material
+		LEFT JOIN sys_dictionary_basic_data_info sdbdi ON sdbdi.dickey=sacbi.dynasty
+		WHERE rc.requestid=#{requestid}
+		AND sdbdi.dictype='CHINESE_DYNASTY'
+		ORDER BY rc.coincode
+  </select>
+</mapper>

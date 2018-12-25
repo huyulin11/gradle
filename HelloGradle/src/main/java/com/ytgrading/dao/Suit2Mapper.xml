@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.Suit2Mapper">
+
+  <select id="selectSuitInfo" resultType="com.ytgrading.bean.SysSuitBasicInfo">
+	    SELECT *
+		FROM
+		  sys_suit_basic_info s
+		WHERE s.id = #{id}
+  	</select>
+</mapper>

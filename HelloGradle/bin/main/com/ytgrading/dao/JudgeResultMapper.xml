@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ytgrading.dao.JudgeResultMapper">
+
+	<select id="select" resultType="com.kaifantech.entity.JudgeResultFormMap" parameterType="int">
+		select
+		dm.innerno,dm.entitytype,ea.aliasname,dc.amount,dm.id,dm.depositstate
+		from deposit_main dm left join deposit_class dc on dc.depositid=dm.id left join  entity_alias ea on dc.entityid=ea.entityid and dm.userid = ea.userid
+		where  1=1 and (dm.depositstate=3 or dm.depositstate=4) and dm.innerno=#{innerno,jdbcType=INTEGER}
+	</select>
+	
+	<insert id="save" parameterType="com.ytgrading.bean.JudgeResult">
+		insert into 
+		deposit_judge_result
+		(depositclassid,
+		 optype,
+		 numreal,
+		 numtestok,
+		 numtestnotok,
+		 numtestunjudged,
+		 remark,
+		 opuserid,
+		 createtime,
+		 delflag)
+		values
+		(#{depositclassid,jdbcType=VARCHAR},
+		 4,
+		 #{numreal,jdbcType=INTEGER},
+		 #{numtestok,jdbcType=INTEGER},
+		 #{numtestnotok,jdbcType=INTEGER},
+		 #{numtestunjudged,jdbcType=INTEGER},
+		 #{remark,jdbcType=VARCHAR},
+		 #{opuserid,jdbcType=INTEGER},
+		 #{createtime,jdbcType=TIMESTAMP},
+		 0)
+	</insert>
+	
+	<update id="update" parameterType="com.ytgrading.bean.JudgeResult">
+		update 
+		deposit_judge_result
+		set
+		numreal=#{numreal,jdbcType=INTEGER},
+		numtestok=#{numtestok,jdbcType=INTEGER},
+		numtestnotok=#{numtestnotok,jdbcType=INTEGER},
+		numtestunjudged=#{numtestunjudged,jdbcType=INTEGER},
+		remark=#{remark,jdbcType=VARCHAR}
+		where
+		depositclassid=#{depositclassid,jdbcType=VARCHAR}
+	</update>
+	
+	<update id="changeState" parameterType="com.ytgrading.bean.JudgeResult">
+		update
+		deposit_judge_result
+		set
+		optype=#{optype,jdbcType=INTEGER}+1
+		where
+		depositclassid=#{depositclassid,jdbcType=VARCHAR}
+	</update>
+	
+	<select id="selectState" resultType="int" parameterType="String">
+		select 
+		optype
+		from 
+		deposit_judge_result
+		where depositclassid=#{depositclassid,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="search" resultType="com.kaifantech.entity.JudgeResultFormMap" parameterType="int">
+		SELECT 
+		dr.depositclassid as id,
+		dm.innerno,
+		dr.numreal,
+		dr.numtestok,
+		dr.numtestnotok,
+		dr.numtestunjudged,
+		dr.remark AS illustrate,
+		dr.opuserid,
+		dm.depositstate,
+		dm.entitytype,dc.amount,dm.deposittime,dc.remark,ea.aliasname,dm.depositstate
+		FROM deposit_main dm LEFT JOIN deposit_class dc ON dc.depositid=dm.id LEFT JOIN  entity_alias ea ON dc.entityid=ea.entityid and dm.userid = ea.userid
+		LEFT JOIN deposit_judge_result dr ON dm.id=dr.depositclassid
+		WHERE dr.delflag=0 
+		 AND dm.innerno=#{innerno,jdbcType=INTEGER} and (dr.optype=4 or dr.optype=5 or dr.optype=6)
+	</select>
+	
+	<insert id="comfirmResult" parameterType="com.ytgrading.bean.JudgeResult">
+		insert into 
+		deposit_judge_result
+		(depositclassid,
+		 optype,
+		 numreal,
+		 numtestok,
+		 numtestnotok,
+		 numtestunjudged,
+		 remark,
+		 opuserid,
+		 createtime,
+		 delflag)
+		select
+		depositclassid,
+		7,
+		#{numreal,jdbcType=INTEGER},
+		#{numtestok,jdbcType=INTEGER},
+		#{numtestnotok,jdbcType=INTEGER},
+		#{numtestunjudged,jdbcType=INTEGER},
+		remark,
+		#{opuserid,jdbcType=INTEGER},
+		#{createtime,jdbcType=TIMESTAMP},
+		delflag
+		from deposit_judge_result
+		where depositclassid=#{depositclassid,jdbcType=VARCHAR}
+	</insert>
+	
+	<select id="showpackage" resultType="com.kaifantech.entity.JudgeResultFormMap" parameterType="int">
+		select 
+		dm.innerno,ea.aliasname,dm.id,ea.entityid
+		from deposit_judge_result dr LEFT JOIN deposit_main dm ON dr.depositclassid=dm.id 
+		LEFT JOIN deposit_class dc ON dc.depositid=dm.id 
+		LEFT JOIN  entity_alias ea ON dc.entityid=ea.entityid and dm.userid = ea.userid
+		where dr.delflag=0
+		and dm.innerno=#{innerno,jdbcType=INTEGER} and dr.optype=7
+	</select>
+	
+	<select id="showPackageJudge" resultType="com.kaifantech.entity.JudgeResultFormMap" parameterType="String">
+		SELECT
+			rm.id,
+			rm.requestcode,
+			rm.totalamount,
+			rm.internalstates,
+			(SELECT amount FROM wms_package_info WHERE rm.requestcode=packageid) amount
+		FROM
+			request_main rm
+		WHERE
+			rm.id =#{requestid}
+	</select>
+	
+	<select id="showPackageJudges" resultType="com.kaifantech.entity.JudgeResultFormMap" parameterType="java.util.List">
+		SELECT
+			rm.id,
+			rm.requestcode,
+			rm.totalamount,
+			rm.internalstates,
+			(SELECT amount FROM wms_package_info WHERE rm.requestcode=packageid) amount
+		FROM
+			request_main rm
+		WHERE
+			rm.id in (
+		<foreach collection="list" item="item" index="index"  separator="," >
+		 #{item,jdbcType=VARCHAR}
+		 </foreach>)
+	</select>
+	
+	<insert id="sealinginfo" parameterType="java.util.List">
+		insert into
+		wms_package_info
+		(packageid,
+		 sealouter,
+		 sealinner,
+		 sealsigh,
+		 sealbyuser,
+		 createuserid,
+		 createusertime,
+		 delflag)
+		values
+		<foreach collection="list" item="item" index="index"  separator=",">
+		(#{item.packageid,jdbcType=VARCHAR},
+		 #{item.sealouter,jdbcType=VARCHAR},
+		 #{item.sealinner,jdbcType=VARCHAR},
+		 #{item.sealsigh,jdbcType=VARCHAR},
+		 #{item.sealbyuser,jdbcType=VARCHAR},
+		 #{item.createuserid,jdbcType=INTEGER},
+		 now(),
+		 0)
+		 </foreach>
+	</insert>
+	
+	<insert id="sealingrelation" parameterType="java.util.List">
+		insert into
+		wms_package_relation
+		(businesstype,
+		 formid,
+		 entityid,
+		 amount,
+		 packageid,
+		 delflag)
+		values
+		<foreach collection="list" item="item" index="index"  separator=",">
+		(1,
+		#{item.id,jdbcType=VARCHAR},
+		#{item.entityid,jdbcType=INTEGER},
+		#{item.amount,jdbcType=INTEGER},
+		#{item.packageid,jdbcType=VARCHAR},
+		0)
+		</foreach>
+	</insert>
+	
+	<update id="changePackState" parameterType="String">
+		update
+		deposit_main
+		set
+		depositstate=8
+		where
+		innerno=#{innerno}
+	</update>
+	
+	<update id="endPackState" parameterType="String">
+		update
+		deposit_main
+		set
+		depositstate=9
+		where
+		innerno=#{innerno}
+	</update>
+	
+</mapper>

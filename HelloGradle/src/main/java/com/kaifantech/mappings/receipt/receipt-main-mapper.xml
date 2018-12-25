@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kaifantech.mappings.receipt.ReceiptMainMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 <cache type="org.mybatis.caches.ehcache.LoggingEhcache" 
+		/> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+	<!-- 以下与实体类的中字段一致 -->
+
+	<select id="findPage" resultType="com.kaifantech.entity.ReceiptMainFormMap">
+		select *
+		from kf_csy_daj_wms.wms_receipt_request_main
+		where 1 = 1
+		and delflag = 0
+		<if test="paperid != null and paperid != ''">
+		and paperid = '${paperid}'
+		</if>
+		<if test="id != null and id != ''">
+		and id = '${id}'
+		</if>
+		<if test="status != null and status != ''">
+		and status = '${status}'
+		</if>
+		<if test="name != null and name != ''">
+		and name = '${name}'
+		</if>
+		order by updatetime desc
+	</select>
+
+	<select id="find" resultType="com.kaifantech.bean.wms.paper.receipt.ReceiptMainBean">
+		select *
+		from kf_csy_daj_wms.wms_receipt_request_main
+		where 1 = 1
+		and delflag = 0
+		<if test="paperid != null and paperid != ''">
+		and paperid like '${paperid}%'
+		</if>
+		<if test="id != null and id != ''">
+		and id = '${id}'
+		</if>
+		<if test="status != null and status != ''">
+		and status = '${status}'
+		</if>
+		order by createtime
+	</select>
+
+	<select id="findAllToIFS" resultType="com.kaifantech.bean.wms.paper.receipt.ReceiptMainBean">
+		SELECT *
+		FROM kf_csy_daj_wms.wms_receipt_request_main
+		WHERE(createtime> date_sub(NOW(), INTERVAL 2 DAY) OR updatetime> date_sub(NOW(), INTERVAL 2 DAY))
+	</select>
+
+	<insert id="add">
+		insert into `kf_csy_daj_wms`.`wms_receipt_request_main` (
+		  `company`,
+		  `warehouse`,
+		  `totalqty`,
+		  `totallines`,
+		  `paperid`,
+		  `receipttype`,
+		  `orderdate`,
+		  `name`,
+		  `status`
+		) 
+		values
+		  (
+		    '${company}',
+		    '${warehouse}',
+		    '${totalqty}',
+		    '${totallines}',
+		    '${paperid}',
+		    '${receipttype}',
+		    null,
+		    '${name}',
+		    '${status}'
+		  )
+	</insert>
+</mapper>
