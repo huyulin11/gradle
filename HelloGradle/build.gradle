@@ -21,6 +21,8 @@ apply plugin: "java"
 apply plugin: "war"
 apply plugin: "eclipse"
 apply plugin: "com.bmuschko.tomcat"
+apply plugin: 'com.bmuschko.tomcat-base'
+
 // In this section you declare where to find the dependencies of your project
 repositories {
     // Use 'jcenter' for resolving your dependencies.
@@ -88,13 +90,36 @@ compile group: 'org.mybatis', name: 'mybatis', version: '3.2.8'
 // https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils
 compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.8.3'
 
-def tomcatVersion = '8.5.15'
+def tomcatVersion = '8.5.2'
     tomcat    "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
             "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
             "org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"    
 }
 
-//指定编译的编码
+//eclipse.classpath.plusConfigurations += [configurations.provided]
 tasks.withType(JavaCompile){
     options.encoding = "UTF-8"
+}
+tomcatRun.contextPath = '/'
+tomcatRunWar.contextPath = '/'
+
+tomcat {
+    httpPort = 180
+    httpsPort = 8091
+    enableSSL = true
+    contextPath = 'sample-app'
+
+    users {
+        user {
+            username = 'user1'
+            password = '123456'
+            roles = ['developers', 'admin']
+        }
+
+        user {
+            username = 'user2'
+            password = 'abcdef'
+            roles = ['manager']
+        }
+    }
 }
