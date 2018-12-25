@@ -59,8 +59,7 @@ public class CurrentUser {
 		} else {
 			userid = (String) request.getSession().getAttribute("userid");
 		}
-		if (userid == null || userid.trim().length() == 0
-				|| userid.equals("null")) {
+		if (userid == null || userid.trim().length() == 0 || userid.equals("null")) {
 			userid = null;
 		}
 		return userid;
@@ -94,8 +93,7 @@ public class CurrentUser {
 	}
 
 	public static int getOwnid(HttpServletRequest request) {
-		return Integer.parseInt((String) request.getSession().getAttribute(
-				"ownid"));
+		return Integer.parseInt((String) request.getSession().getAttribute("ownid"));
 	}
 
 	public static Integer getEmployeeId(HttpServletRequest request) {
@@ -127,8 +125,7 @@ public class CurrentUser {
 		ApplicationContext rootContext = WebApplicationContextUtils
 				.getWebApplicationContext(request.getServletContext());
 		// 当前DispatcherServlet的容器
-		ApplicationContext servletContext = RequestContextUtils
-				.getWebApplicationContext(request);
+		ApplicationContext servletContext = RequestContextUtils.findWebApplicationContext(request);
 		if (servletContext.getBean(clazz) != null) {
 			return servletContext.getBean(clazz);
 		} else {
@@ -137,7 +134,6 @@ public class CurrentUser {
 	}
 
 	public static HttpServletRequest getRequest() {
-		return ((ServletRequestAttributes) RequestContextHolder
-				.getRequestAttributes()).getRequest();
+		return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 	}
 }

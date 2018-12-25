@@ -36,14 +36,14 @@ dependencies {
     compile 'org.apache.struts:struts2-json-plugin:2.3.24.1'
 
     // spring library
-    compile group: 'org.springframework', name: 'spring-core', version: '4.2.3.RELEASE'
-    compile group: 'org.springframework', name: 'spring-web', version: '4.2.3.RELEASE'
-    compile group: 'org.springframework', name: 'spring-orm', version: '4.2.3.RELEASE'
-    compile group: 'org.springframework', name: 'spring-aop', version: '4.2.3.RELEASE'
-    compile group: 'org.springframework', name: 'spring-aspects', version: '4.2.3.RELEASE'
-    compile group: 'org.springframework', name: 'spring-jdbc', version: '4.2.3.RELEASE'
-    compile group: 'org.springframework', name: 'spring-test', version: '4.2.3.RELEASE'
-    compile group: 'org.springframework', name: 'spring-webmvc', version: '4.2.3.RELEASE'
+    compile group: 'org.springframework', name: 'spring-core', version: '4.1.4.RELEASE'
+    compile group: 'org.springframework', name: 'spring-web', version: '4.1.4.RELEASE'
+    compile group: 'org.springframework', name: 'spring-orm', version: '4.1.4.RELEASE'
+    compile group: 'org.springframework', name: 'spring-aop', version: '4.1.4.RELEASE'
+    compile group: 'org.springframework', name: 'spring-aspects', version: '4.1.4.RELEASE'
+    compile group: 'org.springframework', name: 'spring-jdbc', version: '4.1.4.RELEASE'
+    compile group: 'org.springframework', name: 'spring-test', version: '4.1.4.RELEASE'
+    compile group: 'org.springframework', name: 'spring-webmvc', version: '4.1.4.RELEASE'
 
     // hibernate library  
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.1.Final'
