@@ -1,12 +1,14 @@
-/.*/
+/**/.*/
 
 /s/
 /Servers/
 
-**/.gradle/**
+/**/.gradle/**
 **/classes/
 *.class
 *.log
 .metadata*.zip
 *.DS_Store
 ProjectBussModel/WebContent/s
+*.bin
+*.lock
