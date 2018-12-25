@@ -3,6 +3,7 @@
 /s/
 /Servers/
 
+**/.gradle/**
 **/classes/
 *.class
 *.log
